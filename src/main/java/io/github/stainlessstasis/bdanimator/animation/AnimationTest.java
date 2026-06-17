@@ -94,7 +94,7 @@ public class AnimationTest {
                     System.out.println("STARTED");
                 })
                 .onEnd(e -> {
-                    System.out.println("LOOPED");
+                    System.out.println("END");
                 })
                 .onLoop(e -> {
                     System.out.println("LOOPED");
@@ -102,7 +102,7 @@ public class AnimationTest {
                 .onKeyframeReached(0.5f, e -> {
                     System.out.println("HALF");
                 })
-//                .loop(2)
+                .loop(2)
                 .blockState(Blocks.MAGMA_BLOCK.defaultBlockState(), b -> {})
                 .translation(0, 0, 0, t -> t
                         .addKeyframe(0.25f, 0, 3, 0, Easing.EASE_OUT_QUAD)

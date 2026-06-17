@@ -42,6 +42,11 @@ public class VfxEntity extends Entity {
         this.currentAnimation = animation;
         this.animationStartTick = this.tickCount;
         this.animationDurationTicks = animation.durationTicks();
+        this.loopsCompleted = 0;
+        this.lastProgress = 0f;
+        if (animation.onStart() != null) {
+            animation.onStart().accept(this);
+        }
     }
 
     public float getAnimationProgress(float partialTick) {
@@ -64,10 +69,6 @@ public class VfxEntity extends Entity {
         }
 
         if (currentAnimation != null) {
-            if (tickCount - animationStartTick == 1 && currentAnimation.onStart() != null) {
-                currentAnimation.onStart().accept(this);
-            }
-
             if (currentAnimation.keyframeCallbacks() != null) {
                 float previousProgress = this.lastProgress;
                 float progress = getAnimationProgress(0f);
@@ -80,9 +81,9 @@ public class VfxEntity extends Entity {
 
             if (tickCount - animationStartTick >= animationDurationTicks) {
                 int loopCount = currentAnimation.loopCount();
-                boolean shouldLoop = loopCount < 0 || loopsCompleted < loopCount;
+                boolean isLastLoop = loopCount >= 0 && loopsCompleted >= loopCount;
 
-                if (shouldLoop) {
+                if (!isLastLoop) {
                     loopsCompleted++;
                     lastProgress = 0f;
                     animationStartTick = tickCount;
@@ -105,10 +106,10 @@ public class VfxEntity extends Entity {
 
     protected void tickDespawn() {
         if (isPersistInfinite) return;
-        despawnTimer++;
         if (despawnTimer >= ticksToPersist) {
             discard();
         }
+        despawnTimer++;
     }
 
     @Override
