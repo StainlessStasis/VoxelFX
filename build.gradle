@@ -164,12 +164,13 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
             from components.java
+            groupId = mod_group_id
+            artifactId = mod_id
+            version = mod_version
         }
     }
     repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
-        }
+        mavenLocal()
     }
 }
 
