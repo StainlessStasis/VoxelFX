@@ -1,25 +1,24 @@
+# Block Display Animator
 
-Installation information
-=======
+Animate block display entities to make cool VFX.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## Features
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+### Keyframes & Easings
+Animate properties like translation, scale, rotation, and more using simple keyframes. Every easing function from [easings.net](https://easings.net/) is built in, and you can register your own custom easing functions.
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+### Overlays
+Tint any block (including weird shapes like lecterns) any color. Intensity controls how opaque the tint is, and overlays support keyframes just like every other property.
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+### Animation Queueing
+Queue animations to play one after another, or override the current animation immediately. Animations can inherit properties from whichever animation played before them to reduce boilerplate.
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+### Looping & Callbacks
+Loop animations a fixed number of times or infinitely. Hook into `onStart`, `onEnd`, `onLoop`, and `onKeyframeReached` callbacks to trigger logic at any point in an animation's lifecycle.
+
+### Per-Tick Modifiers
+Apply custom per-tick modifiers to translation, scale, rotation, and overlay color/intensity on top of the keyframed values, for effects like wobble, sway, or pulsing that aren't easily expressed as keyframes alone.<br><br>
+*Note: These should be scaled by the context's `interpolatedTicks` so everything stays consistent with any framerate.*
+
+### Builder API
+A fluent builder lets you construct animations declaratively, chaining translation, scale, rotation, overlay, and block state channels together with minimal boilerplate.
