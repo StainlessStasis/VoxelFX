@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.Map;
+import java.util.List;
 import java.util.function.Consumer;
 
 public record VfxAnimation(
@@ -34,7 +34,7 @@ public record VfxAnimation(
         @Nullable Consumer<VfxEntity> onStart,
         @Nullable Consumer<VfxEntity> onEnd,
         @Nullable Consumer<VfxEntity> onLoop,
-        Map<Float, Consumer<VfxEntity>> keyframeCallbacks
+        List<KeyframeCallbackEntry> keyframeCallbacks
 ) {
     @FunctionalInterface
     public interface QuaternionfTickModifier {

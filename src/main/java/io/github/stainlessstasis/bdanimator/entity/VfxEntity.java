@@ -29,6 +29,7 @@ public class VfxEntity extends Entity {
     private float lastProgress = 0f;
     private @Nullable Consumer<VfxEntity> onTick;
     private @Nullable Consumer<VfxEntity> onRemoval;
+    private int nextKeyframeCallbackIndex = 0;
 
     private int brightnessOverride = -1;
     private int ticksToPersist = 0;
@@ -62,6 +63,7 @@ public class VfxEntity extends Entity {
         this.currentAnimation = animation;
         this.animationDurationTicks = animation.durationTicks();
         this.loopsCompleted = 0;
+        this.nextKeyframeCallbackIndex = 0;
 
         float progress = Math.clamp(progressOffset, 0f, 1f);
         int tickOffset = (int) (this.animationDurationTicks * progress);
@@ -181,14 +183,19 @@ public class VfxEntity extends Entity {
         }
 
         if (currentAnimation != null) {
-            if (currentAnimation.keyframeCallbacks() != null && !currentAnimation.keyframeCallbacks().isEmpty()) {
-                float previousProgress = this.lastProgress;
+            var keyframeCallbacks = currentAnimation.keyframeCallbacks();
+            if (keyframeCallbacks != null && !keyframeCallbacks.isEmpty()) {
                 float progress = getAnimationProgress(0f);
-                currentAnimation.keyframeCallbacks().forEach((time, callback) -> {
-                    if (previousProgress < time && progress >= time) {
-                        callback.accept(this);
+
+                while (nextKeyframeCallbackIndex < keyframeCallbacks.size()) {
+                    var entry = keyframeCallbacks.get(nextKeyframeCallbackIndex);
+                    if (progress >= entry.time()) {
+                        entry.callback().accept(this);
+                        nextKeyframeCallbackIndex++;
+                    } else {
+                        break;
                     }
-                });
+                }
             }
 
             if (tickCount - animationStartTick >= animationDurationTicks) {
@@ -198,6 +205,7 @@ public class VfxEntity extends Entity {
                 if (!isLastLoop) {
                     loopsCompleted++;
                     lastProgress = 0f;
+                    nextKeyframeCallbackIndex = 0;
                     animationStartTick = tickCount;
                     if (currentAnimation.onLoop() != null) {
                         currentAnimation.onLoop().accept(this);

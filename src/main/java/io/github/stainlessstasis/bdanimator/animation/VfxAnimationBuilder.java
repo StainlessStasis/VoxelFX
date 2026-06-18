@@ -14,10 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -263,11 +260,15 @@ public class VfxAnimationBuilder {
         if (overlayColorChannel == null) overlayColorChannel = DEFAULT_OVERLAY_COLOR;
         if (overlayIntensityChannel == null) overlayIntensityChannel = DEFAULT_OVERLAY_INTENSITY;
         if (blockStateChannel == null) blockStateChannel = DEFAULT_BLOCK_STATE;
+        List<KeyframeCallbackEntry> sortedKeyframeCallbacks = keyframeCallbacks.entrySet().stream()
+                .map(entry -> new KeyframeCallbackEntry(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparingDouble(KeyframeCallbackEntry::time))
+                .toList();
         return new VfxAnimation(
                 translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
                 inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState,
                 translationModifier, scaleModifier, rotationModifier, overlayColorModifier, overlayIntensityModifier,
-                rotationPivot, durationTicks, loopCount, onStart, onEnd, onLoop, keyframeCallbacks
+                rotationPivot, durationTicks, loopCount, onStart, onEnd, onLoop, sortedKeyframeCallbacks
         );
     }
 
