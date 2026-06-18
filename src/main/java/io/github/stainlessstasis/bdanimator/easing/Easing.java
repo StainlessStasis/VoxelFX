@@ -75,4 +75,9 @@ public enum Easing {
     public float apply(float t) {
         return formula.apply(Math.clamp(t, 0f, 1f));
     }
+
+    @FunctionalInterface
+    public interface EasingFunction {
+        float apply(float t);
+    }
 }
