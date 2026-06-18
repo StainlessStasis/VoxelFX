@@ -67,6 +67,8 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         }
 
         state.blockState = anim.blockStateChannel().evaluate(t, anim.inheritBlockState() ? snapshot.blockState() : null);
+        entity.updateBakedModel(state.blockState, this.blockModelResolver);
+        state.blockModel = entity.getCachedModel();
 
         state.brightnessOverride = entity.getBrightnessOverride();
         state.rotationPivot = anim.rotationPivot();
@@ -80,8 +82,6 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
             state.cameraXRot = camera.xRot();
             state.cameraYRot = camera.yRot();
         }
-
-        blockModelResolver.update(state.blockModel, state.blockState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
     }
 
     @Override
@@ -91,17 +91,15 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
 
         poseStack.mulPose(calculateOrientation(state, new Quaternionf()));
 
-        Transformation transformation = new Transformation(
-                state.translation,
-                state.rotation,
-                state.scale,
-                null
-        );
-        poseStack.mulPose(transformation);
+        poseStack.translate(state.translation.x, state.translation.y, state.translation.z);
+        poseStack.mulPose(state.rotation);
+        poseStack.scale(state.scale.x, state.scale.y, state.scale.z);
         poseStack.translate(-state.rotationPivot.x, -state.rotationPivot.y, -state.rotationPivot.z);
 
         int light = state.brightnessOverride != -1 ? state.brightnessOverride : state.lightCoords;
-        state.blockModel.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+        if (state.blockModel != null) {
+            state.blockModel.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+        }
 
         applyOverlayColor(state, poseStack, collector);
 

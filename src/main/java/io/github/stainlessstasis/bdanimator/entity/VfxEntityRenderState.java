@@ -9,7 +9,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class VfxEntityRenderState extends EntityRenderState {
-    public final BlockModelRenderState blockModel = new BlockModelRenderState();
+    public BlockModelRenderState blockModel = null;
     public BlockState blockState = Blocks.AIR.defaultBlockState();
     public final Vector3f translation = new Vector3f();
     public final Vector3f scale = new Vector3f(1f);

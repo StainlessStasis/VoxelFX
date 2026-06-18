@@ -3,6 +3,9 @@ package io.github.stainlessstasis.bdanimator.entity;
 import io.github.stainlessstasis.bdanimator.animation.BillboardMode;
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
 import io.github.stainlessstasis.bdanimator.animation.VfxSnapshot;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.entity.DisplayRenderer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -10,6 +13,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -22,6 +26,9 @@ import java.util.function.Consumer;
 @SuppressWarnings("NullableProblems")
 public class VfxEntity extends Entity {
     private VfxSnapshot lastSnapshot = VfxSnapshot.DEFAULT;
+    private BlockState lastBlockState = Blocks.AIR.defaultBlockState();
+    private final BlockModelRenderState blockModel = new BlockModelRenderState();
+
     private final Deque<VfxAnimation> animationQueue = new ArrayDeque<>();
     private @Nullable VfxAnimation currentAnimation;
     private long animationStartTick;
@@ -126,6 +133,17 @@ public class VfxEntity extends Entity {
                 animation.overlayIntensityChannel().getLastKeyframeValue(),
                 animation.blockStateChannel().getLastKeyframeValue()
         );
+    }
+
+    public void updateBakedModel(BlockState currentState, BlockModelResolver resolver) {
+        if (this.lastBlockState != currentState) {
+            this.lastBlockState = currentState;
+            resolver.update(this.blockModel, currentState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
+        }
+    }
+
+    public BlockModelRenderState getCachedModel() {
+        return this.blockModel;
     }
 
     private boolean hasAnyInheritance(VfxAnimation animation) {
