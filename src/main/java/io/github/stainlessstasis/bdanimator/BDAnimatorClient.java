@@ -68,7 +68,7 @@ public class BDAnimatorClient {
     static void onKeyInput(InputEvent.Key event) {
         if (event.getAction() != GLFW.GLFW_PRESS) return;
         if (event.getKey() == GLFW.GLFW_KEY_LEFT_ALT) {
-            AnimationTest.runQueueTest();
+            AnimationTest.runPerformanceTest();
         }
     }
 }

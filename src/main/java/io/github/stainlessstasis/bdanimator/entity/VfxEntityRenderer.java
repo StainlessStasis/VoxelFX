@@ -43,28 +43,30 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
 
         float t = entity.getAnimationProgress(partialTicks);
         var context = new VfxAnimation.AnimationContext(entity, entity.tickCount+partialTicks, partialTicks);
-        anim.translationChannel().evaluate(t, state.translation);
+        var snapshot = entity.getLastSnapshot();
+
+        anim.translationChannel().evaluate(t, state.translation, anim.inheritTranslation() ? snapshot.translation() : null);
         if (anim.translationModifier() != null) {
             anim.translationModifier().apply(state.translation, context);
         }
-        anim.scaleChannel().evaluate(t, state.scale);
+        anim.scaleChannel().evaluate(t, state.scale, anim.inheritScale() ? snapshot.scale() : null);
         if (anim.scaleModifier() != null) {
             anim.scaleModifier().apply(state.scale, context);
         }
-        anim.rotationChannel().evaluate(t, state.rotation);
+        anim.rotationChannel().evaluate(t, state.rotation, anim.inheritRotation() ? snapshot.rotation() : null);
         if (anim.rotationModifier() != null) {
             anim.rotationModifier().apply(state.rotation, context);
         }
-        anim.overlayColorChannel().evaluate(t, state.overlayColor);
+        anim.overlayColorChannel().evaluate(t, state.overlayColor, anim.inheritOverlayColor() ? snapshot.overlayColor() : null);
         if (anim.overlayColorModifier() != null) {
             anim.overlayColorModifier().apply(state.overlayColor, context);
         }
-        anim.overlayIntensityChannel().evaluate(t, state.overlayIntensity);
+        anim.overlayIntensityChannel().evaluate(t, state.overlayIntensity, anim.inheritOverlayIntensity() ? snapshot.overlayIntensity() : null);
         if (anim.overlayIntensityModifier() != null) {
             anim.overlayIntensityModifier().apply(state.overlayIntensity, context);
         }
 
-        state.blockState = anim.blockStateChannel().evaluate(t);
+        state.blockState = anim.blockStateChannel().evaluate(t, anim.inheritBlockState() ? snapshot.blockState() : null);
 
         state.brightnessOverride = entity.getBrightnessOverride();
         state.rotationPivot = anim.rotationPivot();

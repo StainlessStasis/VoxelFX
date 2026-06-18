@@ -128,47 +128,6 @@ public class VfxEntity extends Entity {
         );
     }
 
-    private VfxAnimation applySnapshot(VfxAnimation animation) {
-        return new VfxAnimation(
-                animation.inheritTranslation()
-                        ? animation.translationChannel().withStartValue(lastSnapshot.translation())
-                        : animation.translationChannel(),
-                animation.inheritScale()
-                        ? animation.scaleChannel().withStartValue(lastSnapshot.scale())
-                        : animation.scaleChannel(),
-                animation.inheritRotation()
-                        ? animation.rotationChannel().withStartValue(lastSnapshot.rotation())
-                        : animation.rotationChannel(),
-                animation.inheritOverlayColor()
-                        ? animation.overlayColorChannel().withStartValue(lastSnapshot.overlayColor())
-                        : animation.overlayColorChannel(),
-                animation.inheritOverlayIntensity()
-                        ? animation.overlayIntensityChannel().withStartValue(lastSnapshot.overlayIntensity())
-                        : animation.overlayIntensityChannel(),
-                animation.inheritBlockState()
-                        ? animation.blockStateChannel().withStartValue(lastSnapshot.blockState())
-                        : animation.blockStateChannel(),
-                animation.inheritTranslation(),
-                animation.inheritScale(),
-                animation.inheritRotation(),
-                animation.inheritOverlayColor(),
-                animation.inheritOverlayIntensity(),
-                animation.inheritBlockState(),
-                animation.translationModifier(),
-                animation.scaleModifier(),
-                animation.rotationModifier(),
-                animation.overlayColorModifier(),
-                animation.overlayIntensityModifier(),
-                animation.rotationPivot(),
-                animation.durationTicks(),
-                animation.loopCount(),
-                animation.onStart(),
-                animation.onEnd(),
-                animation.onLoop(),
-                animation.keyframeCallbacks()
-        );
-    }
-
     private boolean hasAnyInheritance(VfxAnimation animation) {
         return animation.inheritTranslation() || animation.inheritScale() || animation.inheritRotation()
                 || animation.inheritOverlayColor() || animation.inheritOverlayIntensity() || animation.inheritBlockState();
@@ -221,7 +180,7 @@ public class VfxEntity extends Entity {
                     VfxAnimation next = animationQueue.poll();
                     if (next != null) {
                         if (hasAnyInheritance(next)) {
-                            playAnimation(applySnapshot(next));
+                            playAnimation(next);
                         } else {
                             playAnimation(next);
                         }
@@ -270,6 +229,8 @@ public class VfxEntity extends Entity {
 
     public BillboardMode getBillboardMode() { return billboardMode; }
     public void setBillboardMode(BillboardMode mode) { this.billboardMode = mode; }
+
+    public VfxSnapshot getLastSnapshot() { return this.lastSnapshot; }
 
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {}
     @Override public boolean hurtServer(ServerLevel level, DamageSource source, float v) { return false; }

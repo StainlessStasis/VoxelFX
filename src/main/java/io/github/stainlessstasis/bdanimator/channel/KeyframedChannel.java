@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.bdanimator.channel;
 
 import net.minecraft.util.Mth;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,10 @@ public class KeyframedChannel<S, T> implements Channel<T> {
 
     @Override
     public void evaluate(float t, T destination) {
+        evaluate(t, destination, null);
+    }
+
+    public void evaluate(float t, T destination, @Nullable S fallbackStartValue) {
         Keyframe<S> prev = keyframes.getFirst();
         Keyframe<S> next = keyframes.getLast();
 
@@ -29,19 +34,11 @@ public class KeyframedChannel<S, T> implements Channel<T> {
 
         float segmentT = Mth.inverseLerp(t, prev.time(), next.time());
         float easedT = next.easing().apply(segmentT);
-        lerpFunc.lerp(prev.value(), next.value(), easedT, destination);
-    }
 
-    public KeyframedChannel<S, T> withStartValue(S startValue) {
-        List<Keyframe<S>> newKeyframes = new ArrayList<>(keyframes);
-        newKeyframes.set(0, new Keyframe<>(newKeyframes.getFirst().time(), startValue, newKeyframes.getFirst().easing()));
+        S startVal = (prev == keyframes.getFirst() && fallbackStartValue != null) ? fallbackStartValue : prev.value();
+        S endVal = (next == keyframes.get(1) && keyframes.size() == 2 && fallbackStartValue != null) ? fallbackStartValue : next.value();
 
-        // fixes inheritance without additional keyframes causing it to move toward default values
-        if (newKeyframes.size() == 2) {
-            newKeyframes.set(1, new Keyframe<>(newKeyframes.get(1).time(), startValue, newKeyframes.get(1).easing()));
-        }
-
-        return new KeyframedChannel<>(newKeyframes, lerpFunc);
+        lerpFunc.lerp(startVal, endVal, easedT, destination);
     }
 
     public S getLastKeyframeValue() {

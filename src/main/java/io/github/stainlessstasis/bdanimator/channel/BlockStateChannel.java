@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.bdanimator.channel;
 
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,25 +13,14 @@ public class BlockStateChannel {
         this.keyframes = List.copyOf(keyframes);
     }
 
-    public BlockStateChannel withStartValue(BlockState state) {
-        List<Keyframe<BlockState>> newKeyframes = new ArrayList<>(keyframes);
-        newKeyframes.set(0, new Keyframe<>(newKeyframes.getFirst().time(), state, newKeyframes.getFirst().easing()));
-
-        // fixes inheritance without additional keyframes causing it to move toward default values
-        if (newKeyframes.size() == 2) {
-            newKeyframes.set(1, new Keyframe<>(newKeyframes.get(1).time(), state, newKeyframes.get(1).easing()));
-        }
-
-        return new BlockStateChannel(newKeyframes);
-    }
-
     public BlockState getLastKeyframeValue() {
         return keyframes.getLast().value();
     }
 
-    public BlockState evaluate(float t) {
-        BlockState result = keyframes.getFirst().value();
-        for (Keyframe<BlockState> keyframe : keyframes) {
+    public BlockState evaluate(float t, @Nullable BlockState fallbackStartValue) {
+        BlockState result = (fallbackStartValue != null) ? fallbackStartValue : keyframes.getFirst().value();
+        for (int i = 1; i < keyframes.size(); i++) {
+            Keyframe<BlockState> keyframe = keyframes.get(i);
             if (t >= keyframe.time()) {
                 result = keyframe.value();
             } else {
