@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator;
 
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import io.github.stainlessstasis.bdanimator.animation.AnimationTest;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
@@ -65,22 +66,32 @@ public class BDAnimatorClient {
                                 .executes(ctx -> {
                                     var entities = getAllVfx();
                                     entities.forEach(VfxEntity::pauseAnimation);
-                                    return 1;
+                                    return entities.size();
                                 })
                         )
                         .then(Commands.literal("resume")
                                 .executes(ctx -> {
                                     var entities = getAllVfx();
                                     entities.forEach(VfxEntity::resumeAnimation);
-                                    return 1;
+                                    return entities.size();
                                 })
                         )
                         .then(Commands.literal("stop")
                                 .executes(ctx -> {
                                     var entities = getAllVfx();
                                     entities.forEach(VfxEntity::stopAnimation);
-                                    return 1;
+                                    return entities.size();
                                 })
+                        )
+                        .then(Commands.literal("speed")
+                                .then(Commands.argument("value", FloatArgumentType.floatArg())
+                                        .executes(ctx -> {
+                                            float value = FloatArgumentType.getFloat(ctx, "value");
+                                            var entities = getAllVfx();
+                                            entities.forEach(entity -> entity.setPlaySpeed(value));
+                                            return entities.size();
+                                        })
+                                )
                         )
         );
     }
