@@ -3,7 +3,7 @@
 Animate block display entities to make cool VFX, like this:
 <video src="https://github.com/user-attachments/assets/272ee22a-42d3-4741-9064-bcfc3675386b" autoplay loop muted playsinline width="100%"></video>
 
-## Features
+# Features
 
 ### Animated Block & Item Displays
 Animate blocks and items separately or together.
@@ -67,3 +67,8 @@ Bind animations to follow entities with an optional offset. Can operate in eithe
 
 ### Builder API
 A fluent builder that lets you construct animations declaratively, chaining translation, scale, rotation, overlay, and block/item channels with minimal boilerplate.
+
+# Limitations
+NeoForge 26.1.2+<br>
+This mod is client-only, meaning all effects will have to be triggered with your own code. For instance, sending a packet from server -> client, telling the client to play that animation.<br>
+Animations are designed to be purely visual - do not try to alter the game state using them.
