@@ -51,8 +51,8 @@ Loop animations a fixed number of times or infinitely. Hook into callbacks to tr
 <img width="1080" height="608" alt="loops_and_callbacks" src="https://github.com/user-attachments/assets/dced5158-a772-4660-96a9-eb994bf59a54" />
 </details>
 
-### Per-Tick Modifiers
-Apply custom per-tick modifiers on top of the keyframed values, for effects like wobble, sway, or pulsing that aren't easily expressed as keyframes alone.<br>
+### Per-Frame Modifiers
+Apply custom per-frame modifiers on top of the keyframed values, for effects like wobble, sway, or pulsing that aren't easily expressed as keyframes alone.<br>
 *Note: These should be scaled by the context's `interpolatedTicks` so everything stays consistent with any framerate.*
 
 <details>
