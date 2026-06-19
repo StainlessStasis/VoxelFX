@@ -321,14 +321,10 @@ public class VfxDemos {
                 { Blocks.MAGMA_BLOCK.defaultBlockState(), Blocks.RED_STAINED_GLASS.defaultBlockState(), Blocks.BLACK_STAINED_GLASS.defaultBlockState() },
         };
 
-        for (int i = 0; i < ringCount; i++) {
-            double angle = (2 * Math.PI / ringCount) * i;
-            float dirX = (float) Math.cos(angle);
-            float dirZ = (float) Math.sin(angle);
-
+        float radius = 10f;
+        FXMathUtils.forEachPointOnRing(ringCount, 0f, dir -> {
             BlockState[] sequence = FXMathUtils.randomOf(colorSequences);
 
-            float radius = 10f;
             float startScale = FXMathUtils.randomBetween(2f, 2.75f);
             float endScale = FXMathUtils.randomBetween(0.5f, 0.75f);
             float fireTransition = FXMathUtils.randomBetween(0.25f, 0.4f);
@@ -348,7 +344,7 @@ public class VfxDemos {
                             .addKeyframe(fireTransition, sequence[1])
                             .addKeyframe(smokeTransition, sequence[2]))
                     .translation(0, 0, 0, t -> t
-                            .addKeyframe(1f, dirX * radius, 0, dirZ * radius, Easings.EASE_OUT_EXPO))
+                            .addKeyframe(1f, dir.x * radius, 0, dir.z * radius, Easings.EASE_OUT_EXPO))
                     .scale(startScale, s -> s
                             .addKeyframe(0.7f, startScale * 0.75f, Easings.EASE_IN_QUAD)
                             .addKeyframe(1f, endScale, Easings.EASE_IN_QUAD))
@@ -363,7 +359,7 @@ public class VfxDemos {
                     .build(baseDuration + (int) FXMathUtils.randomBetween(0f, 10f));
 
             entity.playAnimation(anim);
-        }
+        });
     }
 
     public static void demoPerformanceTest(ClientLevel level, LocalPlayer player) {

@@ -7,6 +7,7 @@ import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import io.github.stainlessstasis.bdanimator.task.CancellableRunnable;
 import io.github.stainlessstasis.bdanimator.task.ClientTaskScheduler;
+import io.github.stainlessstasis.bdanimator.util.FXMathUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -148,11 +149,10 @@ public class NovaBombDemo {
         }
 
         int suctionRingCount = 56;
-        for (int i = 0; i < suctionRingCount; i++) {
-            double angle = (2 * Math.PI / suctionRingCount) * i + randomBetween(-0.2f, 0.2f);
+        FXMathUtils.forEachPointOnRing(suctionRingCount, 0.2f, dir -> {
             float distance = randomBetween(8f, 16f);
-            float startX = (float) Math.cos(angle) * distance;
-            float startZ = (float) Math.sin(angle) * distance;
+            float startX = dir.x * distance;
+            float startZ = dir.z * distance;
 
             VfxEntity suction = VfxEntity.create(level,
                     impact.add(startX, randomBetween(-1f, 1f), startZ));
@@ -178,7 +178,7 @@ public class NovaBombDemo {
                             .addIntensityKeyframe(0.8f, 0.6f)
                             .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
                     .build((randomBetween(12, 18))));
-        }
+        });
 
         core.unbind();
         core.setPos(impact);
@@ -216,16 +216,12 @@ public class NovaBombDemo {
                 core.playAnimation(coreBurst);
 
                 int burstCount = 110;
-                for (int i = 0; i < burstCount; i++) {
-                    double theta = Math.random() * 2 * Math.PI;
-                    double phi = Math.acos(2 * Math.random() - 1);
-                    float dirX = (float)(Math.sin(phi) * Math.cos(theta));
-                    float dirY = (float)(Math.sin(phi) * Math.sin(theta));
-                    float dirZ = (float) Math.cos(phi);
-
-                    dirX += randomBetween(-0.25f, 0.25f);
-                    dirY += randomBetween(-0.15f, 0.45f);
-                    dirZ += randomBetween(-0.25f, 0.25f);
+                FXMathUtils.forEachPointOnSphere(burstCount, true, dir -> {
+                    dir.add(
+                            FXMathUtils.randomBetween(-0.25f, 0.25f),
+                            FXMathUtils.randomBetween(-0.15f, 0.45f),
+                            FXMathUtils.randomBetween(-0.25f, 0.25f)
+                    );
 
                     float speed = randomBetween(6f, 18f);
                     float startScale = randomBetween(0.25f, 1.4f);
@@ -243,20 +239,18 @@ public class NovaBombDemo {
                     VfxEntity burst = VfxEntity.create(level, impact);
                     level.addEntity(burst);
 
-                    final float fdirX = dirX, fdirY = dirY, fdirZ = dirZ;
-
                     burst.playAnimation(VfxAnimationBuilder.create()
                             .blockState(block, b -> b
                                     .addKeyframe(randomBetween(0.3f, 0.6f),
                                             Blocks.BLACK_STAINED_GLASS.defaultBlockState()))
                             .translation(0, 0, 0, t -> t
                                     .addKeyframe(0.3f,
-                                            fdirX * speed, fdirY * speed, fdirZ * speed,
+                                            dir.x * speed, dir.y * speed, dir.z * speed,
                                             Easings.EASE_OUT_EXPO)
                                     .addKeyframe(1f,
-                                            fdirX * speed * 1.25f,
-                                            fdirY * speed * 1.25f - randomBetween(1.5f, 5f),
-                                            fdirZ * speed * 1.25f,
+                                            dir.x * speed * 1.25f,
+                                            dir.y * speed * 1.25f - randomBetween(1.5f, 5f),
+                                            dir.z * speed * 1.25f,
                                             Easings.EASE_OUT_SINE))
                             .scale(startScale, s -> s
                                     .addKeyframe(0.15f, startScale * 1.4f, Easings.EASE_OUT_QUAD)
@@ -273,17 +267,14 @@ public class NovaBombDemo {
                                     .addIntensityKeyframe(0.35f, 0.6f, Easings.EASE_OUT_QUAD)
                                     .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_SINE))
                             .build(duration));
-                }
+                });
             }
         });
 
+        int ringCount = 75;
         ClientTaskScheduler.INSTANCE.runTaskLater(18, new CancellableRunnable() {
             @Override protected void execute() {
-                int ringCount = 75;
-                for (int i = 0; i < ringCount; i++) {
-                    double angle = (2 * Math.PI / ringCount) * i + randomBetween(-0.05f, 0.05f);
-                    float dirX = (float) Math.cos(angle);
-                    float dirZ = (float) Math.sin(angle);
+                FXMathUtils.forEachPointOnRing(ringCount, 0.05f, dir -> {
                     float startScale = randomBetween(1.2f, 2.8f);
                     float radius = randomBetween(16f, 24f);
 
@@ -302,7 +293,7 @@ public class NovaBombDemo {
                                     .addKeyframe(randomBetween(0.4f, 0.6f),
                                             Blocks.BLACK_STAINED_GLASS.defaultBlockState()))
                             .translation(0, 0, 0, t -> t
-                                    .addKeyframe(1f, dirX * radius, randomBetween(-0.5f, 1.5f), dirZ * radius, Easings.EASE_OUT_EXPO))
+                                    .addKeyframe(1f, dir.x * radius, randomBetween(-0.5f, 1.5f), dir.z * radius, Easings.EASE_OUT_EXPO))
                             .scale(startScale, s -> s
                                     .addKeyframe(0.5f, startScale * 0.7f, Easings.EASE_IN_QUAD)
                                     .addKeyframe(1f, 0f, Easings.EASE_IN_QUART))
@@ -316,7 +307,7 @@ public class NovaBombDemo {
                                     .addIntensityKeyframe(0.5f, 0.4f, Easings.EASE_IN_QUAD)
                                     .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
                             .build((int) randomBetween(22f, 34f)));
-                }
+                });
             }
         });
 
