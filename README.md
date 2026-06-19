@@ -5,24 +5,35 @@ Animate block display entities to make cool VFX, like this:
 
 ## Features
 
+### Animated Block & Item Displays
+Animate blocks and items separately or together.
+<img width="1080" height="608" alt="blocks_and_items" src="https://github.com/user-attachments/assets/38d90e3e-2af5-49f4-81d6-7a187c82585c" />
+
 ### Keyframes & Easings
-Animate properties like translation, scale, rotation, and more using simple keyframes. Every easing function from [easings.net](https://easings.net/) is built in, and you can register your own custom easing functions.
+Every easing function from [easings.net](https://easings.net/) is built in, and you can register your own custom easing functions.
+<img width="1080" height="608" alt="keyframes_and_easings" src="https://github.com/user-attachments/assets/b9df9f06-3092-47c2-955e-5bbe10c2a41f"/>
 
 ### Overlays
 Tint any block (including weird shapes like lecterns) any color. Intensity controls how opaque the tint is, and overlays support keyframes just like every other property.
+*Note: Does not support items.*
+<img width="1080" height="608" alt="overlay" src="https://github.com/user-attachments/assets/11c5b6d9-0930-4702-b50a-a44834ecd323" />
 
-### Animation Queueing
+### Animation Queueing & Inheritance
 Queue animations to play one after another, or override the current animation immediately. Animations can inherit properties from whichever animation played before them to reduce boilerplate.
+<img width="1080" height="608" alt="queue_and_inheritance" src="https://github.com/user-attachments/assets/e5c44541-d7a7-4399-9f2a-f805eea9a4a8" />
 
 ### Looping & Callbacks
-Loop animations a fixed number of times or infinitely. Hook into `onStart`, `onEnd`, `onLoop`, and `onKeyframeReached` callbacks to trigger logic at any point in an animation's lifecycle.
+Loop animations a fixed number of times or infinitely. Hook into callbacks to trigger logic at any point in an animation's lifecycle.
+<img width="1080" height="608" alt="loops_and_callbacks" src="https://github.com/user-attachments/assets/dced5158-a772-4660-96a9-eb994bf59a54" />
 
 ### Per-Tick Modifiers
-Apply custom per-tick modifiers to translation, scale, rotation, and overlay color/intensity on top of the keyframed values, for effects like wobble, sway, or pulsing that aren't easily expressed as keyframes alone.<br><br>
+Apply custom per-tick modifiers on top of the keyframed values, for effects like wobble, sway, or pulsing that aren't easily expressed as keyframes alone.<br><br>
 *Note: These should be scaled by the context's `interpolatedTicks` so everything stays consistent with any framerate.*
+<img width="1080" height="608" alt="per_tick_modifiers" src="https://github.com/user-attachments/assets/e05c1e3b-d92d-4bc9-b318-994a9e74ca42" />
 
 ### Entity Binding
 Bind animations to follow entities with an optional offset. Can operate in either global or local space.
+*Showcased in above Nova Bomb video.*
 
 ### Builder API
-A fluent builder that lets you construct animations declaratively, chaining translation, scale, rotation, overlay, and block state channels with minimal boilerplate.
+A fluent builder that lets you construct animations declaratively, chaining translation, scale, rotation, overlay, and block/item channels with minimal boilerplate.
