@@ -172,7 +172,18 @@ public class VfxEntity extends Entity {
     }
 
     public boolean isPaused() { return isPaused; }
-    public void setPlaySpeed(float speed) { this.playSpeed = speed; }
+    public void setPlaySpeed(float speed) {
+        if (speed == this.playSpeed) return;
+        float currentProgress = getAnimationProgress(0f);
+        this.playSpeed = speed;
+        if (speed != 0f) {
+            float scaledTicks = currentProgress * animationDurationTicks;
+            float ticksSince = scaledTicks / speed;
+            this.animationStartTick = (long)(this.tickCount - ticksSince);
+        }
+
+        this.lastProgress = currentProgress;
+    }
     public float getPlaySpeed() { return playSpeed; }
 
     public float getAnimationProgress(float partialTick) {
@@ -280,17 +291,15 @@ public class VfxEntity extends Entity {
             }
         }
 
-        boolean forwardComplete = playSpeed >= 0 && tickCount - animationStartTick >= animationDurationTicks;
-        boolean reverseComplete = playSpeed < 0 && getAnimationProgress(0f) <= 0f;
+        boolean forwardComplete = playSpeed >= 0 && lastProgress >= 1f;
+        boolean reverseComplete = playSpeed < 0 && lastProgress <= 0f;
         if (forwardComplete || reverseComplete) {
             int loopCount = currentAnimation.loopCount();
             boolean isLastLoop = loopCount >= 0 && loopsCompleted >= loopCount;
 
             if (!isLastLoop) {
                 loopsCompleted++;
-                lastProgress = 0f;
-                nextKeyframeCallbackIndex = 0;
-                animationStartTick = tickCount;
+                resetLoop(playSpeed >= 0 ? 0f : 1f);
                 if (currentAnimation.onLoop() != null) {
                     currentAnimation.onLoop().accept(this);
                 }
@@ -322,6 +331,18 @@ public class VfxEntity extends Entity {
             discard();
         }
         despawnTimer++;
+    }
+
+    private void resetLoop(float startProgress) {
+        this.lastProgress = startProgress;
+        if (currentAnimation != null) {
+            this.nextKeyframeCallbackIndex = playSpeed >= 0 ? 0 : currentAnimation.keyframeCallbacks().size();
+        }
+        float scaledTicks = startProgress * animationDurationTicks;
+        if (playSpeed != 0f) {
+            float ticksSince = scaledTicks / playSpeed;
+            this.animationStartTick = (long)(this.tickCount - ticksSince);
+        }
     }
 
     public void bindTo(Entity entity) {
