@@ -1,6 +1,7 @@
 # Block Display Animator
 
-Animate block display entities to make cool VFX, ![like this](https://github.com/user-attachments/assets/272ee22a-42d3-4741-9064-bcfc3675386b):
+Animate block display entities to make cool VFX, like this:
+https://github.com/user-attachments/assets/272ee22a-42d3-4741-9064-bcfc3675386b
 
 ## Features
 
