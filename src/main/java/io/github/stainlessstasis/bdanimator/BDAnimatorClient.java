@@ -61,7 +61,38 @@ public class BDAnimatorClient {
                                     return entities.size();
                                 })
                         )
+                        .then(Commands.literal("pause")
+                                .executes(ctx -> {
+                                    var entities = getAllVfx();
+                                    entities.forEach(VfxEntity::pauseAnimation);
+                                    return 1;
+                                })
+                        )
+                        .then(Commands.literal("resume")
+                                .executes(ctx -> {
+                                    var entities = getAllVfx();
+                                    entities.forEach(VfxEntity::resumeAnimation);
+                                    return 1;
+                                })
+                        )
+                        .then(Commands.literal("stop")
+                                .executes(ctx -> {
+                                    var entities = getAllVfx();
+                                    entities.forEach(VfxEntity::stopAnimation);
+                                    return 1;
+                                })
+                        )
         );
+    }
+
+    private static List<VfxEntity> getAllVfx() {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return List.of();
+        Player player = Minecraft.getInstance().player;
+        if (player == null) return List.of();
+
+        return level.getEntitiesOfClass(VfxEntity.class,
+                player.getBoundingBox().inflate(1000));
     }
 
     @SubscribeEvent

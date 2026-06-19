@@ -328,6 +328,37 @@ public class VfxAnimationBuilder {
             return addKeyframe(time, new Vector3f(uniformValue), Easings.LINEAR);
         }
 
+        public Vector3fBuilder addRandomKeyframe(float time, Vector3f min, Vector3f max, Supplier<Easing> easing) {
+            return addKeyframe(time,
+                    min.x + (float)(Math.random() * (max.x - min.x)),
+                    min.y + (float)(Math.random() * (max.y - min.y)),
+                    min.z + (float)(Math.random() * (max.z - min.z)),
+                    easing
+            );
+        }
+        public Vector3fBuilder addRandomKeyframe(float time, Vector3f min, Vector3f max) {
+            return addRandomKeyframe(time, min, max, Easings.LINEAR);
+        }
+
+        public Vector3fBuilder addRandomKeyframe(float time, float min, float max, Supplier<Easing> easing) {
+            float val = min + (float)(Math.random() * (max - min));
+            return addKeyframe(time, new Vector3f(val), easing);
+        }
+        public Vector3fBuilder addRandomKeyframe(float time, float min, float max) {
+            return addRandomKeyframe(time, min, max, Easings.LINEAR);
+        }
+
+        public Vector3fBuilder addRandomKeyframe(float time, float minX, float maxX, float minY, float maxY, float minZ, float maxZ, Supplier<Easing> easing) {
+            return addKeyframe(time, new Vector3f(
+                    minX + (float)(Math.random() * (maxX - minX)),
+                    minY + (float)(Math.random() * (maxY - minY)),
+                    minZ + (float)(Math.random() * (maxZ - minZ))
+            ), easing);
+        }
+        public Vector3fBuilder addRandomKeyframe(float time, float minX, float maxX, float minY, float maxY, float minZ, float maxZ) {
+            return addRandomKeyframe(time, minX, maxX, minY, maxY, minZ, maxZ, Easings.LINEAR);
+        }
+
         public Vector3fBuilder holdKeyframe(float time) {
             keyframes.add(new Keyframe<>(time, keyframes.getLast().value(), keyframes.getLast().easing()));
             return this;

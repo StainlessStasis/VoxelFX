@@ -46,6 +46,9 @@ public class VfxEntity extends Entity {
     private long animationStartTick;
     private int animationDurationTicks;
     private float lastProgress = 0f;
+    private boolean isPaused = false;
+    private long pausedAtTick = 0;
+    private float pausedProgress = 0f;
     private @Nullable Consumer<VfxEntity> onTick;
     private @Nullable Consumer<VfxEntity> onRemoval;
     private int nextKeyframeCallbackIndex = 0;
@@ -140,7 +143,37 @@ public class VfxEntity extends Entity {
         }
     }
 
+    public void stopAnimation() {
+        if (currentAnimation == null) return;
+        if (currentAnimation.onEnd() != null) {
+            currentAnimation.onEnd().accept(this);
+        }
+        lastSnapshot = captureEndSnapshot(currentAnimation);
+        currentAnimation = null;
+        loopsCompleted = 0;
+        isPaused = false;
+        animationQueue.clear();
+        tickDespawn();
+    }
+
+    public void pauseAnimation() {
+        if (isPaused || currentAnimation == null) return;
+        isPaused = true;
+        pausedAtTick = tickCount;
+        pausedProgress = lastProgress;
+    }
+
+    public void resumeAnimation() {
+        if (!isPaused || currentAnimation == null) return;
+        long pausedDuration = tickCount - pausedAtTick;
+        animationStartTick += pausedDuration;
+        isPaused = false;
+    }
+
+    public boolean isPaused() { return isPaused; }
+
     public float getAnimationProgress(float partialTick) {
+        if (isPaused) return pausedProgress;
         if (animationDurationTicks <= 0) return 1f;
         float ticksSince = (float)(this.tickCount - this.animationStartTick);
         float t = Math.clamp(
@@ -217,56 +250,63 @@ public class VfxEntity extends Entity {
             onTick.accept(this);
         }
 
-        if (currentAnimation != null) {
-            var keyframeCallbacks = currentAnimation.keyframeCallbacks();
-            if (keyframeCallbacks != null && !keyframeCallbacks.isEmpty()) {
-                float progress = getAnimationProgress(0f);
+        if (currentAnimation == null) {
+            tickDespawn();
+        } else {
+            if (!isPaused) {
+                tickAnimations();
+            }
+        }
+    }
 
-                while (nextKeyframeCallbackIndex < keyframeCallbacks.size()) {
-                    var entry = keyframeCallbacks.get(nextKeyframeCallbackIndex);
-                    if (progress >= entry.time()) {
-                        entry.callback().accept(this);
-                        nextKeyframeCallbackIndex++;
-                    } else {
-                        break;
-                    }
+    protected void tickAnimations() {
+        if (currentAnimation == null) return;
+        var keyframeCallbacks = currentAnimation.keyframeCallbacks();
+        if (keyframeCallbacks != null && !keyframeCallbacks.isEmpty()) {
+            float progress = getAnimationProgress(0f);
+
+            while (nextKeyframeCallbackIndex < keyframeCallbacks.size()) {
+                var entry = keyframeCallbacks.get(nextKeyframeCallbackIndex);
+                if (progress >= entry.time()) {
+                    entry.callback().accept(this);
+                    nextKeyframeCallbackIndex++;
+                } else {
+                    break;
                 }
             }
+        }
 
-            if (tickCount - animationStartTick >= animationDurationTicks) {
-                int loopCount = currentAnimation.loopCount();
-                boolean isLastLoop = loopCount >= 0 && loopsCompleted >= loopCount;
+        if (tickCount - animationStartTick >= animationDurationTicks) {
+            int loopCount = currentAnimation.loopCount();
+            boolean isLastLoop = loopCount >= 0 && loopsCompleted >= loopCount;
 
-                if (!isLastLoop) {
-                    loopsCompleted++;
-                    lastProgress = 0f;
-                    nextKeyframeCallbackIndex = 0;
-                    animationStartTick = tickCount;
-                    if (currentAnimation.onLoop() != null) {
-                        currentAnimation.onLoop().accept(this);
+            if (!isLastLoop) {
+                loopsCompleted++;
+                lastProgress = 0f;
+                nextKeyframeCallbackIndex = 0;
+                animationStartTick = tickCount;
+                if (currentAnimation.onLoop() != null) {
+                    currentAnimation.onLoop().accept(this);
+                }
+            } else {
+                if (currentAnimation.onEnd() != null) {
+                    currentAnimation.onEnd().accept(this);
+                }
+                lastSnapshot = captureEndSnapshot(currentAnimation);
+                currentAnimation = null;
+                loopsCompleted = 0;
+
+                VfxAnimation next = animationQueue.poll();
+                if (next != null) {
+                    if (hasAnyInheritance(next)) {
+                        playAnimation(next);
+                    } else {
+                        playAnimation(next);
                     }
                 } else {
-                    if (currentAnimation.onEnd() != null) {
-                        currentAnimation.onEnd().accept(this);
-                    }
-                    lastSnapshot = captureEndSnapshot(currentAnimation);
-                    currentAnimation = null;
-                    loopsCompleted = 0;
-
-                    VfxAnimation next = animationQueue.poll();
-                    if (next != null) {
-                        if (hasAnyInheritance(next)) {
-                            playAnimation(next);
-                        } else {
-                            playAnimation(next);
-                        }
-                    } else {
-                        tickDespawn();
-                    }
+                    tickDespawn();
                 }
             }
-        } else {
-            tickDespawn();
         }
     }
 
