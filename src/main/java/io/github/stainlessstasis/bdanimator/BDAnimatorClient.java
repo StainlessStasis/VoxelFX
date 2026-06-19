@@ -79,7 +79,7 @@ public class BDAnimatorClient {
                         .then(Commands.literal("stop")
                                 .executes(ctx -> {
                                     var entities = getAllVfx();
-                                    entities.forEach(VfxEntity::stopAnimation);
+                                    entities.forEach(VfxEntity::stopAnimations);
                                     return entities.size();
                                 })
                         )

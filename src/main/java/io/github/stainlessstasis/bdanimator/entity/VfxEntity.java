@@ -75,8 +75,10 @@ public class VfxEntity extends Entity {
         this.noPhysics = true;
     }
 
-    public static VfxEntity create(Level level) {
-        return new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+    public static VfxEntity create(Level level, Vec3 pos) {
+        VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        entity.setPos(pos);
+        return entity;
     }
 
     public static VfxEntity createBoundTo(Level level, Entity target) {
@@ -84,7 +86,7 @@ public class VfxEntity extends Entity {
     }
 
     public static VfxEntity createBoundTo(Level level, Entity target, Vector3f offset, boolean localSpace) {
-        VfxEntity entity = create(level);
+        VfxEntity entity = create(level, target.position());
         entity.bindTo(target, offset, localSpace);
         entity.setPos(target.position());
         return entity;
@@ -98,6 +100,10 @@ public class VfxEntity extends Entity {
         playAnimation(animation, 0f);
     }
 
+    /**
+     * Immediately plays an animation with an offset in its progress (0-1).
+     * See {@link #playOrQueueAnimation} for queueing animations.
+     */
     public void playAnimation(VfxAnimation animation, float progressOffset) {
         this.currentAnimation = animation;
         this.animationDurationTicks = animation.durationTicks();
@@ -114,6 +120,9 @@ public class VfxEntity extends Entity {
         }
     }
 
+    /**
+     * See {@link #playAnimation(VfxAnimation, float)}.
+     */
     public void playAnimationWithOffset(VfxAnimation animation, float seconds) {
         int durationTicks = animation.durationTicks();
         if (durationTicks <= 0) {
@@ -124,6 +133,9 @@ public class VfxEntity extends Entity {
         playAnimation(animation, ticksOffset / (float) durationTicks);
     }
 
+    /**
+     * See {@link #playAnimation(VfxAnimation, float)}.
+     */
     public void playAnimationWithOffset(VfxAnimation animation, int ticks) {
         int durationTicks = animation.durationTicks();
         if (durationTicks <= 0) {
@@ -145,7 +157,10 @@ public class VfxEntity extends Entity {
         }
     }
 
-    public void stopAnimation() {
+    /**
+     * Stops this entity's animations and clears the animation queue.
+     */
+    public void stopAnimations() {
         if (currentAnimation == null) return;
         if (currentAnimation.onEnd() != null) {
             currentAnimation.onEnd().accept(this);
@@ -158,6 +173,9 @@ public class VfxEntity extends Entity {
         tickDespawn();
     }
 
+    /**
+     * Pauses this entity's animations, if not already paused. For resuming, see {@link #resumeAnimation}
+     */
     public void pauseAnimation() {
         if (isPaused || currentAnimation == null) return;
         isPaused = true;
@@ -165,14 +183,20 @@ public class VfxEntity extends Entity {
         pausedProgress = lastProgress;
     }
 
+    /**
+     * Resumes this entity's animations. For pausing, see {@link #pauseAnimation}.
+     */
     public void resumeAnimation() {
         if (!isPaused || currentAnimation == null) return;
         long pausedDuration = tickCount - pausedAtTick;
         animationStartTick += pausedDuration;
         isPaused = false;
     }
-
     public boolean isPaused() { return isPaused; }
+
+    /**
+     * Sets the play speed of this entity's animations. Negative values will play in reverse.
+     */
     public void setPlaySpeed(float speed) {
         if (speed == this.playSpeed) return;
         float currentProgress = getAnimationProgress(0f);
@@ -188,6 +212,9 @@ public class VfxEntity extends Entity {
     public float getPlaySpeed() { return playSpeed; }
     public void setReverseStopsAtStart(boolean value) { this.reverseStopsAtStart = value; }
 
+    /**
+     * Gets the normalized animation progress, based on the play speed of the animation. Goes from 1 to 0 when reversed. Always returns the same value when paused.
+     */
     public float getAnimationProgress(float partialTick) {
         if (isPaused) return pausedProgress;
         if (animationDurationTicks <= 0) return 1f;
@@ -199,6 +226,10 @@ public class VfxEntity extends Entity {
         );
         this.lastProgress = t;
         return t;
+    }
+
+    public void clearAnimationQueue() {
+        animationQueue.clear();
     }
 
     private VfxSnapshot captureEndSnapshot(VfxAnimation animation) {
@@ -227,12 +258,11 @@ public class VfxEntity extends Entity {
         );
     }
 
-    public void updateRenderedTranslation(Vector3f value) { this.lastRenderedTranslation.set(value); }
-    public void updateRenderedScale(Vector3f value) { this.lastRenderedScale.set(value); }
-    public void updateRenderedOverlayColor(Vector3f value) { this.lastRenderedOverlayColor.set(value); }
-    public void updateRenderedOverlayIntensity(float value) { this.lastRenderedOverlayIntensity[0] = value; }
-
-    public void updateBlockModel(BlockState currentState, BlockModelResolver resolver) {
+    protected void updateRenderedTranslation(Vector3f value) { this.lastRenderedTranslation.set(value); }
+    protected void updateRenderedScale(Vector3f value) { this.lastRenderedScale.set(value); }
+    protected void updateRenderedOverlayColor(Vector3f value) { this.lastRenderedOverlayColor.set(value); }
+    protected void updateRenderedOverlayIntensity(float value) { this.lastRenderedOverlayIntensity[0] = value; }
+    protected void updateBlockModel(BlockState currentState, BlockModelResolver resolver) {
         if (this.lastRenderedBlockState != currentState) {
             this.lastRenderedBlockState = currentState;
             resolver.update(this.blockModel, currentState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
@@ -241,21 +271,14 @@ public class VfxEntity extends Entity {
     public BlockModelRenderState getBlockModel() {
         return this.blockModel;
     }
-
-    public void updateItemModel(ItemStack currentStack, ItemModelResolver resolver) {
+    protected void updateItemModel(ItemStack currentStack, ItemModelResolver resolver) {
         if (this.lastRenderedItemStack == null || !ItemStack.isSameItemSameComponents(this.lastRenderedItemStack, currentStack)) {
             this.lastRenderedItemStack = currentStack.copy();
             resolver.updateForNonLiving(this.itemModel, currentStack, ItemDisplayContext.GROUND, this);
         }
     }
-
     public ItemStackRenderState getItemModel() {
         return this.itemModel;
-    }
-
-    private boolean hasAnyInheritance(VfxAnimation animation) {
-        return animation.inheritTranslation() || animation.inheritScale() || animation.inheritRotation()
-                || animation.inheritOverlayColor() || animation.inheritOverlayIntensity() || animation.inheritBlockState() || animation.inheritItemStack();
     }
 
     @Override
@@ -323,7 +346,7 @@ public class VfxEntity extends Entity {
 
                 VfxAnimation next = animationQueue.poll();
                 if (next != null) {
-                    if (hasAnyInheritance(next)) {
+                    if (next.hasAnyInheritance()) {
                         playAnimation(next);
                     } else {
                         playAnimation(next);
@@ -404,6 +427,8 @@ public class VfxEntity extends Entity {
 
     public @Nullable VfxAnimation getCurrentAnimation() { return currentAnimation; }
     public int getLoopsCompleted() { return this.loopsCompleted; }
+    public float getLastProgress() { return this.lastProgress; }
+    public float getPausedProgress() { return this.pausedProgress; }
 
     public int getBrightnessOverride() { return brightnessOverride; }
     public void setBrightnessOverride(int brightness) { this.brightnessOverride = brightness; }

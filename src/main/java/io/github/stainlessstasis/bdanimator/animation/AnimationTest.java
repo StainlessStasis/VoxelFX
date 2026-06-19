@@ -57,8 +57,7 @@ public class AnimationTest {
             float fireTransition = 0.25f + (float)(Math.random() * 0.15f);
             float smokeTransition = 0.5f + (float)(Math.random() * 0.2f);
 
-            VfxEntity entity = VfxEntity.create(level);
-            entity.setPos(center);
+            VfxEntity entity = VfxEntity.create(level, center);
             level.addEntity(entity);
 
             VfxAnimation anim = VfxAnimationBuilder.create()
@@ -90,10 +89,9 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = VfxEntity.create(level);
-        entity.setAffectedByCulling(false);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
-        entity.setPos(pos);
+        VfxEntity entity = VfxEntity.create(level, pos);
+        entity.setAffectedByCulling(false);
         level.addEntity(entity);
 
         VfxAnimation anim1 = VfxAnimationBuilder.create()
@@ -164,9 +162,7 @@ public class AnimationTest {
         if (level == null) return;
 
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
-
-        VfxEntity entity = VfxEntity.create(level);
-        entity.setPos(pos);
+        VfxEntity entity = VfxEntity.create(level, pos);
         entity.setAffectedByCulling(false);
         level.addEntity(entity);
 
@@ -214,9 +210,8 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = VfxEntity.create(level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
-        entity.setPos(pos);
+        VfxEntity entity = VfxEntity.create(level, pos);
         level.addEntity(entity);
 
         VfxAnimation anim = VfxAnimationBuilder.create()
@@ -261,9 +256,8 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = VfxEntity.create(level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(6f));
-        entity.setPos(pos);
+        VfxEntity entity = VfxEntity.create(level, pos);
         level.addEntity(entity);
         float scale = 0.5f;
 
@@ -307,8 +301,7 @@ public class AnimationTest {
             double y = py + r * Math.cos(phi);
             double z = pz + r * Math.sin(phi) * Math.sin(theta);
 
-            VfxEntity entity = VfxEntity.create(level);
-            entity.setPos(x, y, z);
+            VfxEntity entity = VfxEntity.create(level, new Vec3(x, y, z));
             level.addEntity(entity);
 
             int duration = 1800 + (int)(Math.random() * 900);
@@ -414,8 +407,7 @@ public class AnimationTest {
 
         float blocksPerTick = 0.5f;
 
-        VfxEntity bullet = VfxEntity.create(level);
-        bullet.setPos(spawnPos);
+        VfxEntity bullet = VfxEntity.create(level, spawnPos);
         bullet.setInfinitePersist(true);
         bullet.setOnTick(e -> {
             Vec3 currentPos = e.position();

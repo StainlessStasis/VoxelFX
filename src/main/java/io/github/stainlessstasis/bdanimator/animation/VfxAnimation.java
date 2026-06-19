@@ -61,5 +61,8 @@ public record VfxAnimation(
         }
     }
 
-
+    public boolean hasAnyInheritance() {
+        return this.inheritTranslation() || this.inheritScale() || this.inheritRotation()
+                || this.inheritOverlayColor() || this.inheritOverlayIntensity() || this.inheritBlockState() || this.inheritItemStack();
+    }
 }
