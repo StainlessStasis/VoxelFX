@@ -16,7 +16,7 @@ public class VfxEntityRenderState extends EntityRenderState {
     public BlockState blockState = Blocks.AIR.defaultBlockState();
 
     public boolean hasItemStack = false;
-    ItemStackRenderState itemModel = null;
+    public ItemStackRenderState itemModel = null;
     public ItemStack itemStack = ItemStack.EMPTY;
 
     public final Vector3f translation = new Vector3f();

@@ -81,6 +81,7 @@ public class VfxEntity extends Entity {
 
     public static VfxEntity create(Level level, Vec3 pos) {
         VfxEntity entity = new VfxEntity(VoxelFXEntities.VFX_ENTITY.get(), level);
+        VfxEntityCache.INSTANCE.add(entity);
         entity.setPos(pos);
         return entity;
     }
@@ -92,7 +93,6 @@ public class VfxEntity extends Entity {
     public static VfxEntity createBoundTo(Level level, Entity target, Vector3f offset, boolean localSpace) {
         VfxEntity entity = create(level, target.position());
         entity.bindTo(target, offset, localSpace);
-        entity.setPos(target.position());
         return entity;
     }
 
@@ -319,7 +319,7 @@ public class VfxEntity extends Entity {
     protected void updateItemModel(ItemStack currentStack, ItemModelResolver resolver) {
         if (this.lastRenderedItemStack == null || !ItemStack.isSameItemSameComponents(this.lastRenderedItemStack, currentStack)) {
             this.lastRenderedItemStack = currentStack.copy();
-            resolver.updateForNonLiving(this.itemModel, currentStack, ItemDisplayContext.GROUND, this);
+            resolver.updateForNonLiving(this.itemModel, currentStack, ItemDisplayContext.NONE, this);
         }
     }
     public ItemStackRenderState getItemModel() {
@@ -328,7 +328,8 @@ public class VfxEntity extends Entity {
 
     @Override
     public void tick() {
-        super.tick();
+        setOldPosAndRot();
+        baseTick();
         updateBoundPosition();
 
         if (onTick != null) {
@@ -342,6 +343,9 @@ public class VfxEntity extends Entity {
                 tickAnimations(0f);
             }
         }
+
+        tickCount++;
+        firstTick = false;
     }
 
     protected void tickAnimations(float partialTick) {
@@ -508,4 +512,18 @@ public class VfxEntity extends Entity {
     @Override public boolean hurtServer(ServerLevel level, DamageSource source, float v) { return false; }
     @Override protected void readAdditionalSaveData(ValueInput input) { discard(); }
     @Override protected void addAdditionalSaveData(ValueOutput output) {}
+
+    @Override
+    public int getId() {
+        return hashCode();
+    }
+
+    /**
+     * Uses identityHashCode because Entity overrides hashCode to return getId.
+     * The problem is that since the entity doesn't have an id since its being created clientside... yeah you get it
+     */
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
 }

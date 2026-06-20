@@ -42,7 +42,7 @@ public class VfxDemos {
         DEMOS.put("overlay", VfxDemos::demoOverlay);
         DEMOS.put("queue_and_inheritance", VfxDemos::demoQueueAndInheritance);
         DEMOS.put("loops_and_callbacks", VfxDemos::demoLoopsAndCallbacks);
-        DEMOS.put("tick_modifiers", VfxDemos::demoTickModifiers);
+        DEMOS.put("frame_modifiers", VfxDemos::demoFrameModifiers);
         DEMOS.put("entity_binding", VfxDemos::demoEntityBinding);
         DEMOS.put("shockwave", VfxDemos::demoShockwave);
         DEMOS.put("nova_bomb", NovaBombDemo::demoNovaBomb);
@@ -75,11 +75,9 @@ public class VfxDemos {
         BlockState[] blocks = { Blocks.RED_CONCRETE.defaultBlockState(), Blocks.YELLOW_CONCRETE.defaultBlockState(), Blocks.LIME_CONCRETE.defaultBlockState(), Blocks.CYAN_CONCRETE.defaultBlockState() };
 
         for (int i = 0; i < easings.size(); i++) {
-            final int idx = i;
             VfxEntity entity = VfxEntity.create(level, pos.add(i * spacing, 0, 0));
-            level.addEntity(entity);
 
-            var easing = easings.get(idx);
+            var easing = easings.get(i);
             entity.playAnimation(VfxAnimationBuilder.create()
                     .blockState(blocks[i], builder -> {})
                     .scale(0.5f, builder -> {})
@@ -94,7 +92,6 @@ public class VfxDemos {
     public static void demoBlocksAndItems(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         VfxEntity entity = VfxEntity.create(level, pos);
-        level.addEntity(entity);
 
         entity.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.GLASS.defaultBlockState(), builder -> {})
@@ -111,7 +108,7 @@ public class VfxDemos {
         Vec3 pos = getFrontPosition(player);
         VfxEntity entity = VfxEntity.create(level, pos);
         entity.setInfinitePersist(true);
-        level.addEntity(entity);
+
 
         entity.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.EMERALD_BLOCK.defaultBlockState(), builder -> {})
@@ -143,7 +140,7 @@ public class VfxDemos {
     public static void demoOverlay(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         VfxEntity entity = VfxEntity.create(level, pos);
-        level.addEntity(entity);
+
 
         entity.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.WHITE_CONCRETE.defaultBlockState(), builder -> {})
@@ -164,7 +161,6 @@ public class VfxDemos {
     public static void demoQueueAndInheritance(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         VfxEntity entity = VfxEntity.create(level, pos);
-        level.addEntity(entity);
 
         // stage 1: slam down and squish
         VfxAnimation drop = VfxAnimationBuilder.create()
@@ -209,7 +205,7 @@ public class VfxDemos {
     public static void demoLoopsAndCallbacks(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         VfxEntity entity = VfxEntity.create(level, pos);
-        level.addEntity(entity);
+
 
         entity.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.BEACON.defaultBlockState(), builder -> {})
@@ -231,20 +227,13 @@ public class VfxDemos {
                 .build(40));
     }
 
-    public static void demoTickModifiers(ClientLevel level, LocalPlayer player) {
+    public static void demoFrameModifiers(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         VfxEntity anchor = VfxEntity.create(level, pos);
         anchor.setInfinitePersist(true);
-        VfxAnimation anchorAnim = VfxAnimationBuilder.create()
-                .blockState(Blocks.END_STONE.defaultBlockState(), builder -> {})
-                .scale(0.8f, builder -> {})
-                .build(1);
-        anchor.playAnimation(anchorAnim);
-        level.addEntity(anchor);
 
         VfxEntity orbiter = VfxEntity.create(level, pos);
         orbiter.setInfinitePersist(true);
-        level.addEntity(orbiter);
 
         float orbitRadius = 3f;
         orbiter.playAnimation(VfxAnimationBuilder.create()
@@ -278,7 +267,6 @@ public class VfxDemos {
         trail.setOnBoundEntityRemoved(vfxEntity -> {
             vfxEntity.stopAnimations();
         });
-        level.addEntity(trail);
 
         trail.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.PACKED_ICE.defaultBlockState(), builder -> {})
@@ -292,7 +280,6 @@ public class VfxDemos {
 
                     VfxEntity impact = VfxEntity.create(level, impactPos);
                     impact.setBrightnessOverride(Brightness.FULL_BRIGHT.pack());
-                    level.addEntity(impact);
 
                     var snapshot = vfxEntity.captureCurrentSnapshot();
                     impact.playAnimation(VfxAnimationBuilder.create()
@@ -336,7 +323,7 @@ public class VfxDemos {
             );
 
             VfxEntity entity = VfxEntity.create(level, center);
-            level.addEntity(entity);
+
 
             VfxAnimation anim = VfxAnimationBuilder.create()
                     .blockState(sequence[0], b -> b
@@ -385,7 +372,7 @@ public class VfxDemos {
             double z = pz + r * Math.sin(phi) * Math.sin(theta);
 
             VfxEntity entity = VfxEntity.create(level, new Vec3(x, y, z));
-            level.addEntity(entity);
+
 
             int duration = 1800 + (int) VfxMathUtils.randomBetween(0f, 900f);
             VfxAnimation anim = VfxAnimationBuilder.create()
@@ -465,7 +452,6 @@ public class VfxDemos {
                     null
             ));
 
-            level.addEntity(entity);
         }
 
         player.sendSystemMessage(Component.literal("Spawned " + count + " vanilla Block Display entities"));
