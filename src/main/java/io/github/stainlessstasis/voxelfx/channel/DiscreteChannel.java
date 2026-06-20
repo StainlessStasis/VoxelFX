@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.voxelfx.channel;
 
-import io.github.stainlessstasis.voxelfx.easing.Easings;
+import net.minecraft.util.EasingType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class DiscreteChannel<T> implements Channel<T> {
     }
 
     public static <T> DiscreteChannel<T> holdDiscreteChannel(T value) {
-        return new DiscreteChannel<>(List.of(new Keyframe<>(0f, value, Easings.LINEAR)));
+        return new DiscreteChannel<>(List.of(new Keyframe<>(0f, value, EasingType.LINEAR)));
     }
 
     public T getLastKeyframeValue() {

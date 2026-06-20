@@ -3,15 +3,15 @@ package io.github.stainlessstasis.voxelfx.demo;
 import io.github.stainlessstasis.voxelfx.animation.VfxAnimation;
 import io.github.stainlessstasis.voxelfx.animation.VfxAnimationBuilder;
 import io.github.stainlessstasis.voxelfx.animation.VfxSnapshot;
-import io.github.stainlessstasis.voxelfx.easing.Easings;
 import io.github.stainlessstasis.voxelfx.entity.VfxEntity;
 import io.github.stainlessstasis.voxelfx.task.CancellableRunnable;
 import io.github.stainlessstasis.voxelfx.task.ClientTaskScheduler;
-import io.github.stainlessstasis.voxelfx.util.VfxMathUtils;
+import io.github.stainlessstasis.voxelfx.util.VfxUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.EasingType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.level.block.Blocks;
@@ -22,8 +22,8 @@ import org.joml.Vector3f;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static io.github.stainlessstasis.voxelfx.util.VfxMathUtils.randomBetween;
-import static io.github.stainlessstasis.voxelfx.util.VfxMathUtils.randomOf;
+import static io.github.stainlessstasis.voxelfx.util.VfxUtils.randomBetween;
+import static io.github.stainlessstasis.voxelfx.util.VfxUtils.randomOf;
 
 public class NovaBombDemo {
     private static final long[] SONIC_CHARGE_SEEDS = new long[]{758150237086332386L, 1026614418597737318L};
@@ -86,7 +86,7 @@ public class NovaBombDemo {
             orbiter.playAnimation(VfxAnimationBuilder.create()
                     .blockState(orbitBlock, b -> {})
                     .scale(0f, s -> s
-                            .addKeyframe(1f, scale, Easings.EASE_OUT_EXPO))
+                            .addKeyframe(1f, scale, EasingType.OUT_EXPO))
                     .onFrameTranslation((t, ctx) -> {
                         float angle = angleOffset + ctx.interpolatedTicks() * orbitSpeed;
                         t.x += (float)(Math.cos(angle) * orbitRadius);
@@ -137,21 +137,21 @@ public class NovaBombDemo {
                     .inheritScale()
                     .inheritTranslation()
                     .translation(t -> t
-                            .addKeyframe(1f, 0f, 0f, 0f, Easings.EASE_IN_EXPO))
+                            .addKeyframe(1f, 0f, 0f, 0f, EasingType.IN_EXPO))
                     .scale(s -> s
-                            .addKeyframe(0.6f, snap.scale().x * 1.3f, Easings.EASE_OUT_QUAD)
-                            .addKeyframe(1f, 0f, Easings.EASE_IN_EXPO))
+                            .addKeyframe(0.6f, snap.scale().x * 1.3f, EasingType.OUT_QUAD)
+                            .addKeyframe(1f, 0f, EasingType.IN_EXPO))
                     .onFrameRotation((r, ctx) ->
                             r.rotateY(ctx.interpolatedTicks() * 0.6f * (1f - ctx.getAnimationProgress())))
                     .overlay(0.5f, 0f, 1f, 0.5f, o -> o
-                            .addColorKeyframe(0.7f, new Vector3f(1f, 0.8f, 1f), Easings.EASE_IN_EXPO)
-                            .addIntensityKeyframe(0.8f, 1f, Easings.EASE_IN_EXPO)
+                            .addColorKeyframe(0.7f, new Vector3f(1f, 0.8f, 1f), EasingType.IN_EXPO)
+                            .addIntensityKeyframe(0.8f, 1f, EasingType.IN_EXPO)
                             .addIntensityKeyframe(1f, 0f))
                     .build(15));
         }
 
         int suctionRingCount = 56;
-        VfxMathUtils.forEachPointOnRing(suctionRingCount, 0.2f, dir -> {
+        VfxUtils.forEachPointOnRing(suctionRingCount, 0.2f, dir -> {
             float distance = randomBetween(8f, 16f);
             float startX = dir.x * distance;
             float startZ = dir.z * distance;
@@ -168,16 +168,16 @@ public class NovaBombDemo {
                             Blocks.BUDDING_AMETHYST.defaultBlockState(),
                             Blocks.BLACK_STAINED_GLASS.defaultBlockState()), b -> {})
                     .scale(0f, s -> s
-                            .addKeyframe(0.15f, scale, Easings.EASE_OUT_EXPO)
-                            .addKeyframe(0.85f, scale * 0.6f, Easings.EASE_IN_QUAD)
-                            .addKeyframe(1f, 0f, Easings.EASE_IN_EXPO))
+                            .addKeyframe(0.15f, scale, EasingType.OUT_EXPO)
+                            .addKeyframe(0.85f, scale * 0.6f, EasingType.IN_QUAD)
+                            .addKeyframe(1f, 0f, EasingType.IN_EXPO))
                     .translation(0, 0, 0, t -> t
-                            .addKeyframe(1f, -startX, randomBetween(-0.5f, 0.5f), -startZ, Easings.EASE_IN_EXPO))
+                            .addKeyframe(1f, -startX, randomBetween(-0.5f, 0.5f), -startZ, EasingType.IN_EXPO))
                     .onFrameRotation((r, ctx) ->
                             r.rotateY(ctx.interpolatedTicks() * randomBetween(0.2f, 0.5f)))
                     .overlay(0.4f, 0f, 1f, 0.6f, o -> o
                             .addIntensityKeyframe(0.8f, 0.6f)
-                            .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
+                            .addIntensityKeyframe(1f, 0f, EasingType.IN_QUAD))
                     .build((randomBetween(12, 18))));
         });
 
@@ -187,12 +187,12 @@ public class NovaBombDemo {
         VfxAnimation coreSuck = VfxAnimationBuilder.create()
                 .inheritBlockState()
                 .scale(1.4f, s -> s
-                        .addKeyframe(0.5f, 0.4f, Easings.EASE_IN_QUAD)
-                        .addKeyframe(1f, 3.5f, Easings.EASE_OUT_EXPO))
+                        .addKeyframe(0.5f, 0.4f, EasingType.IN_QUAD)
+                        .addKeyframe(1f, 3.5f, EasingType.OUT_EXPO))
                 .overlay(0.1f, 0f, 0.5f, 0.7f, o -> o
                         .addColorKeyframe(0.5f, new Vector3f(0.8f, 0.4f, 1f))
-                        .addIntensityKeyframe(0.5f, 0.3f, Easings.EASE_IN_QUAD)
-                        .addIntensityKeyframe(1f, 1f, Easings.EASE_OUT_EXPO))
+                        .addIntensityKeyframe(0.5f, 0.3f, EasingType.IN_QUAD)
+                        .addIntensityKeyframe(1f, 1f, EasingType.OUT_EXPO))
                 .build(15);
 
         core.playOrQueueAnimation(coreSuck);
@@ -207,21 +207,21 @@ public class NovaBombDemo {
                 VfxAnimation coreBurst = VfxAnimationBuilder.create()
                         .inheritBlockState()
                         .scale(3.5f, s -> s
-                                .addKeyframe(0.08f, 14f, Easings.EASE_OUT_EXPO)
-                                .addKeyframe(1f, 0f, Easings.EASE_IN_QUART))
+                                .addKeyframe(0.08f, 14f, EasingType.OUT_EXPO)
+                                .addKeyframe(1f, 0f, EasingType.IN_QUART))
                         .overlay(1f, 0.5f, 1f, 0.5f, o -> o
                                 .addColorKeyframe(0.05f, new Vector3f(1f, 1f, 1f))
-                                .addIntensityKeyframe(0.08f, 1f, Easings.EASE_OUT_EXPO)
-                                .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUART))
+                                .addIntensityKeyframe(0.08f, 1f, EasingType.OUT_EXPO)
+                                .addIntensityKeyframe(1f, 0f, EasingType.IN_QUART))
                         .build(18);
                 core.playAnimation(coreBurst);
 
                 int burstCount = 110;
-                VfxMathUtils.forEachPointOnSphere(burstCount, true, dir -> {
+                VfxUtils.forEachPointOnSphere(burstCount, true, dir -> {
                     dir.add(
-                            VfxMathUtils.randomBetween(-0.25f, 0.25f),
-                            VfxMathUtils.randomBetween(-0.15f, 0.45f),
-                            VfxMathUtils.randomBetween(-0.25f, 0.25f)
+                            VfxUtils.randomBetween(-0.25f, 0.25f),
+                            VfxUtils.randomBetween(-0.15f, 0.45f),
+                            VfxUtils.randomBetween(-0.25f, 0.25f)
                     );
 
                     float speed = randomBetween(6f, 18f);
@@ -246,26 +246,26 @@ public class NovaBombDemo {
                             .translation(0, 0, 0, t -> t
                                     .addKeyframe(0.3f,
                                             dir.x * speed, dir.y * speed, dir.z * speed,
-                                            Easings.EASE_OUT_EXPO)
+                                            EasingType.OUT_EXPO)
                                     .addKeyframe(1f,
                                             dir.x * speed * 1.25f,
                                             dir.y * speed * 1.25f - randomBetween(1.5f, 5f),
                                             dir.z * speed * 1.25f,
-                                            Easings.EASE_OUT_SINE))
+                                            EasingType.OUT_SINE))
                             .scale(startScale, s -> s
-                                    .addKeyframe(0.15f, startScale * 1.4f, Easings.EASE_OUT_QUAD)
+                                    .addKeyframe(0.15f, startScale * 1.4f, EasingType.OUT_QUAD)
                                     .addKeyframe(0.55f, startScale * 0.8f)
-                                    .addKeyframe(1f, 0f, Easings.EASE_IN_QUART))
+                                    .addKeyframe(1f, 0f, EasingType.IN_QUART))
                             .rotation(
                                     randomBetween(0f, 360f),
                                     randomBetween(0f, 360f),
                                     randomBetween(0f, 360f),
-                                    r -> r.addRandomDeltaKeyframe(1f, -240f, 240f, Easings.EASE_OUT_QUAD))
+                                    r -> r.addRandomDeltaKeyframe(1f, -240f, 240f, EasingType.OUT_QUAD))
                             .overlay(0.5f, 0.0f, 1f, 0.9f, o -> o
                                     .addColorKeyframe(0.25f, new Vector3f(0.4f, 0f, 0.6f))
                                     .addColorKeyframe(0.6f, new Vector3f(0.05f, 0f, 0.1f))
-                                    .addIntensityKeyframe(0.35f, 0.6f, Easings.EASE_OUT_QUAD)
-                                    .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_SINE))
+                                    .addIntensityKeyframe(0.35f, 0.6f, EasingType.OUT_QUAD)
+                                    .addIntensityKeyframe(1f, 0f, EasingType.IN_SINE))
                             .build(duration));
                 });
             }
@@ -274,7 +274,7 @@ public class NovaBombDemo {
         int ringCount = 75;
         ClientTaskScheduler.INSTANCE.runTaskLater(18, new CancellableRunnable() {
             @Override protected void execute() {
-                VfxMathUtils.forEachPointOnRing(ringCount, 0.05f, dir -> {
+                VfxUtils.forEachPointOnRing(ringCount, 0.05f, dir -> {
                     float startScale = randomBetween(1.2f, 2.8f);
                     float radius = randomBetween(16f, 24f);
 
@@ -292,19 +292,19 @@ public class NovaBombDemo {
                                     .addKeyframe(randomBetween(0.4f, 0.6f),
                                             Blocks.BLACK_STAINED_GLASS.defaultBlockState()))
                             .translation(0, 0, 0, t -> t
-                                    .addKeyframe(1f, dir.x * radius, randomBetween(-0.5f, 1.5f), dir.z * radius, Easings.EASE_OUT_EXPO))
+                                    .addKeyframe(1f, dir.x * radius, randomBetween(-0.5f, 1.5f), dir.z * radius, EasingType.OUT_EXPO))
                             .scale(startScale, s -> s
-                                    .addKeyframe(0.5f, startScale * 0.7f, Easings.EASE_IN_QUAD)
-                                    .addKeyframe(1f, 0f, Easings.EASE_IN_QUART))
+                                    .addKeyframe(0.5f, startScale * 0.7f, EasingType.IN_QUAD)
+                                    .addKeyframe(1f, 0f, EasingType.IN_QUART))
                             .rotation(
                                     randomBetween(0f, 360f),
                                     randomBetween(0f, 360f),
                                     randomBetween(0f, 360f),
-                                    r -> r.addRandomDeltaKeyframe(1f, -90f, 90f, Easings.EASE_OUT_QUAD))
+                                    r -> r.addRandomDeltaKeyframe(1f, -90f, 90f, EasingType.OUT_QUAD))
                             .overlay(0.5f, 0f, 1f, 0.8f, o -> o
                                     .addColorKeyframe(0.3f, new Vector3f(0.1f, 0f, 0.2f))
-                                    .addIntensityKeyframe(0.5f, 0.4f, Easings.EASE_IN_QUAD)
-                                    .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
+                                    .addIntensityKeyframe(0.5f, 0.4f, EasingType.IN_QUAD)
+                                    .addIntensityKeyframe(1f, 0f, EasingType.IN_QUAD))
                             .build((int) randomBetween(22f, 34f)));
                 });
             }
@@ -321,7 +321,7 @@ public class NovaBombDemo {
                     VfxEntity seeker = VfxEntity.create(level, impact);
                     VfxAnimation seekerFly = VfxAnimationBuilder.create()
                             .blockState(Blocks.AMETHYST_BLOCK.defaultBlockState(), b -> {})
-                            .scale(0f, sc -> sc.addKeyframe(1f, 0.3f, Easings.EASE_OUT_EXPO))
+                            .scale(0f, sc -> sc.addKeyframe(1f, 0.3f, EasingType.OUT_EXPO))
                             .onFrameTranslation((t, ctx) -> {
                                 float angle = seekerAngle + ctx.interpolatedTicks() * seekerOrbitSpeed;
                                 float r = ctx.getAnimationProgress() * seekerOrbitRadius;
@@ -334,7 +334,7 @@ public class NovaBombDemo {
                                 r.rotateX(ctx.interpolatedTicks() * 0.3f);
                             })
                             .overlay(0.4f, 0f, 1f, 0f, o -> o
-                                    .addIntensityKeyframe(1f, 0.7f, Easings.EASE_OUT_QUAD))
+                                    .addIntensityKeyframe(1f, 0.7f, EasingType.OUT_QUAD))
                             .build(20);
 
                     VfxAnimation seekerReturn = VfxAnimationBuilder.create()
@@ -342,13 +342,13 @@ public class NovaBombDemo {
                             .inheritScale()
                             .inheritTranslation()
                             .translation(t -> t
-                                    .addKeyframe(1f, 0f, 0f, 0f, Easings.EASE_IN_EXPO))
+                                    .addKeyframe(1f, 0f, 0f, 0f, EasingType.IN_EXPO))
                             .scale(sc -> sc
-                                    .addKeyframe(0.7f, 0.4f, Easings.EASE_IN_QUAD)
-                                    .addKeyframe(1f, 0f, Easings.EASE_IN_QUART))
+                                    .addKeyframe(0.7f, 0.4f, EasingType.IN_QUAD)
+                                    .addKeyframe(1f, 0f, EasingType.IN_QUART))
                             .overlay(0.4f, 0f, 1f, 0.7f, o -> o
-                                    .addColorKeyframe(0.7f, new Vector3f(1f, 0.5f, 1f), Easings.EASE_IN_QUAD)
-                                    .addIntensityKeyframe(0.9f, 1f, Easings.EASE_IN_EXPO)
+                                    .addColorKeyframe(0.7f, new Vector3f(1f, 0.5f, 1f), EasingType.IN_QUAD)
+                                    .addIntensityKeyframe(0.9f, 1f, EasingType.IN_EXPO)
                                     .addIntensityKeyframe(1f, 0f))
                             .onEnd(e -> {
                                 for (int m = 0; m < 8; m++) {
@@ -359,12 +359,12 @@ public class NovaBombDemo {
                                     mini.playAnimation(VfxAnimationBuilder.create()
                                             .blockState(Blocks.PURPLE_STAINED_GLASS.defaultBlockState(), b -> {})
                                             .scale(0.2f, sc -> sc
-                                                    .addKeyframe(1f, 0f, Easings.EASE_OUT_EXPO))
+                                                    .addKeyframe(1f, 0f, EasingType.OUT_EXPO))
                                             .translation(0, 0, 0, t -> t
                                                     .addKeyframe(1f, mX * 3f, randomBetween(0f, 2f), mZ * 3f,
-                                                            Easings.EASE_OUT_EXPO))
+                                                            EasingType.OUT_EXPO))
                                             .overlay(0.8f, 0.2f, 1f, 0.8f, o -> o
-                                                    .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
+                                                    .addIntensityKeyframe(1f, 0f, EasingType.IN_QUAD))
                                             .build(12));
                                 }
                             })

@@ -3,18 +3,17 @@ package io.github.stainlessstasis.voxelfx.demo;
 import com.mojang.math.Transformation;
 import io.github.stainlessstasis.voxelfx.animation.VfxAnimation;
 import io.github.stainlessstasis.voxelfx.animation.VfxAnimationBuilder;
-import io.github.stainlessstasis.voxelfx.easing.Easing;
-import io.github.stainlessstasis.voxelfx.easing.Easings;
 import io.github.stainlessstasis.voxelfx.entity.VfxEntity;
 import io.github.stainlessstasis.voxelfx.task.CancellableRunnable;
 import io.github.stainlessstasis.voxelfx.task.ClientTaskScheduler;
-import io.github.stainlessstasis.voxelfx.util.VfxMathUtils;
+import io.github.stainlessstasis.voxelfx.util.VfxUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Brightness;
+import net.minecraft.util.EasingType;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -68,10 +67,57 @@ public class VfxDemos {
         return player.position().add(look.scale(4)).add(0, player.getEyeHeight() - 1, 0);
     }
 
+    /**
+     * Easings are functions which can drastically affect the way an animation looks, giving it a different feeling.<br>
+     *
+     * <p>Each easing (except linear) has 3 types:
+     *  <ul>
+     *  <li><b>IN</b> - starts slow, accelerates toward the end</li>
+     *  <li><b>OUT</b> - starts fast, decelerates toward the end</li>
+     *  <li><b>IN_OUT</b> - slow at both ends, fast in the middle</li>
+     *  </ul>
+     *
+     * <p>Unsure which easing to use? Try matching the easing with the "feeling" of your animation:
+     * <ul>
+     *   <li><b>LINEAR</b> - constant speed, no acceleration. Feels robotic and unnatural for physical objects.
+     *   Best for things that should track a value mechanically, like a constant spin.</li>
+     *
+     *   <li><b>SINE</b> - the gentlest curve, barely distinguishable from linear at a glance.
+     *   Feels organic and calm, like breathing or floating. Good for looping idle animations and subtle ambient motion.</li>
+     *
+     *   <li><b>QUAD</b> - a noticeable but natural-feeling curve. Feels responsive and grounded, like everyday physical objects.
+     *   When in doubt, start here.</li>
+     *
+     *   <li><b>CUBIC</b> - more pronounced than QUAD. Feels deliberate and weighty, like something with real mass starting or stopping.
+     *   Good for larger movements that should feel purposeful.</li>
+     *
+     *   <li><b>QUART</b> - aggressive curve, especially at the extremes. Feels snappy and high-energy.
+     *   OUT_QUART in particular is great for explosions and impacts that need to feel violent.</li>
+     *
+     *   <li><b>QUINT</b> - very aggressive. Almost all motion is compressed into a tiny window.
+     *   Feels explosive and extreme. Use sparingly for maximum dramatic effect.</li>
+     *
+     *   <li><b>EXPO</b> - the most extreme of the "smooth" curves. IN_EXPO barely moves for most of its duration then launches suddenly.
+     *   OUT_EXPO does the reverse - nearly instant movement that fades into stillness.</li>
+     *
+     *   <li><b>CIRC</b> - follows a circular arc. Feels similar to EXPO but more sharp and precise.
+     *   Good for mechanical effects.</li>
+     *
+     *   <li><b>BACK</b> - overshoots the target slightly before settling. Feels springy and alive, like something with momentum that corrects itself.
+     *   Great for objects that should feel like they have personality.</li>
+     *
+     *   <li><b>ELASTIC</b> - overshoots dramatically and oscillates like a spring before settling.
+     *   Feels bouncy and exaggerated. Use for anything that should feel rubbery and alive. Can be overwhelming if overused.</li>
+     *
+     *   <li><b>BOUNCE</b> - simulates a physical bounce, decelerating in discrete steps.
+     *   OUT_BOUNCE feels like dropping a ball and watching it settle. Feels playful and physical.
+     *   IN_BOUNCE is rarely useful on its own but can work well when paired with other animations in a queue.</li>
+     * </ul>
+     */
     public static void demoKeyframesAndEasings(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         float spacing = 3f;
-        List<Easing> easings = List.of(Easings.LINEAR, Easings.EASE_OUT_BOUNCE, Easings.EASE_IN_OUT_ELASTIC, Easings.EASE_OUT_EXPO);
+        List<EasingType> easings = List.of(EasingType.LINEAR, EasingType.OUT_BOUNCE, EasingType.IN_OUT_ELASTIC, EasingType.OUT_EXPO);
         BlockState[] blocks = { Blocks.RED_CONCRETE.defaultBlockState(), Blocks.YELLOW_CONCRETE.defaultBlockState(), Blocks.LIME_CONCRETE.defaultBlockState(), Blocks.CYAN_CONCRETE.defaultBlockState() };
 
         for (int i = 0; i < easings.size(); i++) {
@@ -98,7 +144,7 @@ public class VfxDemos {
                 .itemStack(new ItemStack(Items.NETHER_STAR), i -> {})
                 .scale(1.5f, builder -> {})
                 .rotation(0, 0, 0, builder -> builder
-                        .addKeyframe(1f, 0, 360, 0, Easings.LINEAR))
+                        .addKeyframe(1f, 0, 360, 0, EasingType.LINEAR))
                 .loopInfinite()
                 .build(60));
     }
@@ -112,7 +158,7 @@ public class VfxDemos {
                 .blockState(Blocks.EMERALD_BLOCK.defaultBlockState(), builder -> {})
                 .scale(1f, builder -> {})
                 .translation(builder -> builder
-                        .addKeyframe(1f, 0, 5, 0, Easings.LINEAR))
+                        .addKeyframe(1f, 0, 5, 0, EasingType.LINEAR))
                 .onKeyframeReached(0.35f, vfxEntity -> {
                     vfxEntity.setPlaySpeed(0.5f);
                     player.sendSystemMessage(Component.literal("Slowed to 0.5x"));
@@ -146,12 +192,12 @@ public class VfxDemos {
                 .overlay(1f, 0f, 0f, 0f, builder -> builder
                         .addColorKeyframe(0.25f, new Vector3f(1f, 0f, 0f))
                         .addIntensityKeyframe(0.1f, 0f)
-                        .addIntensityKeyframe(0.25f, 0.8f, Easings.EASE_OUT_QUAD)
+                        .addIntensityKeyframe(0.25f, 0.8f, EasingType.OUT_QUAD)
                         .addColorKeyframe(0.5f, new Vector3f(0f, 1f, 0f))
                         .addColorKeyframe(0.75f, new Vector3f(0f, 0f, 1f))
                         .addColorKeyframe(0.9f, new Vector3f(1f, 0f, 0f))
                         .addIntensityKeyframe(0.9f, 0.8f)
-                        .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
+                        .addIntensityKeyframe(1f, 0f, EasingType.IN_QUAD))
                 .loopInfinite()
                 .build(100));
     }
@@ -165,7 +211,7 @@ public class VfxDemos {
                 .blockState(Blocks.ANVIL.defaultBlockState(), builder -> {})
                 .scale(1f, builder -> {})
                 .translation(0, 5, 0, builder -> builder
-                        .addKeyframe(1f, 0, 0, 0, Easings.EASE_IN_QUART))
+                        .addKeyframe(1f, 0, 0, 0, EasingType.IN_QUART))
                 .onStart(vfxEntity -> level.playLocalSound(pos.x, pos.y, pos.z,
                         SoundEvents.ANVIL_FALL, SoundSource.AMBIENT, 1f, 0.8f, false))
                 .build(20);
@@ -175,8 +221,8 @@ public class VfxDemos {
                 .inheritBlockState()
                 .inheritTranslation()
                 .scale(1f, builder -> builder
-                        .addKeyframe(0.3f, 2f, 0.2f, 2f, Easings.EASE_OUT_EXPO)
-                        .addKeyframe(1f, 1f, 1f, 1f, Easings.EASE_OUT_BOUNCE))
+                        .addKeyframe(0.3f, 2f, 0.2f, 2f, EasingType.OUT_EXPO)
+                        .addKeyframe(1f, 1f, 1f, 1f, EasingType.OUT_BOUNCE))
                 .onStart(vfxEntity -> level.playLocalSound(pos.x, pos.y, pos.z,
                         SoundEvents.ANVIL_LAND, SoundSource.AMBIENT, 1f, 1.2f, false))
                 .build(30);
@@ -187,10 +233,10 @@ public class VfxDemos {
                 .inheritTranslation()
                 .inheritScale()
                 .scale(builder -> builder
-                        .addKeyframe(1f, 4f, Easings.EASE_OUT_EXPO))
+                        .addKeyframe(1f, 4f, EasingType.OUT_EXPO))
                 .overlay(1f, 0.5f, 0f, 0f, builder -> builder
-                        .addIntensityKeyframe(0.2f, 0.9f, Easings.EASE_OUT_QUAD)
-                        .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
+                        .addIntensityKeyframe(0.2f, 0.9f, EasingType.OUT_QUAD)
+                        .addIntensityKeyframe(1f, 0f, EasingType.IN_QUAD))
                 .onStart(vfxEntity -> level.playLocalSound(pos.x, pos.y, pos.z,
                         SoundEvents.GENERIC_EXPLODE.value(), SoundSource.AMBIENT, 0.6f, 1.5f, false))
                 .build(25);
@@ -215,12 +261,12 @@ public class VfxDemos {
                         pos.x, pos.y, pos.z,
                         SoundEvents.BEACON_POWER_SELECT, SoundSource.AMBIENT, 0.3f, 1.5f, false))
                 .overlay(0.4f, 0.8f, 1f, 0f, builder -> builder
-                        .addIntensityKeyframe(0.3f, 0.6f, Easings.EASE_OUT_QUAD)
-                        .addIntensityKeyframe(0.5f, 0f, Easings.EASE_IN_QUAD)
+                        .addIntensityKeyframe(0.3f, 0.6f, EasingType.OUT_QUAD)
+                        .addIntensityKeyframe(0.5f, 0f, EasingType.IN_QUAD)
                         .addIntensityKeyframe(1f, 0f))
                 .scale(1f, builder -> builder
-                        .addKeyframe(0.3f, 1.3f, Easings.EASE_OUT_QUAD)
-                        .addKeyframe(0.5f, 1f, Easings.EASE_IN_QUAD))
+                        .addKeyframe(0.3f, 1.3f, EasingType.OUT_QUAD)
+                        .addKeyframe(0.5f, 1f, EasingType.IN_QUAD))
                 .loopInfinite()
                 .build(40));
     }
@@ -242,8 +288,8 @@ public class VfxDemos {
                     translation.z += (float)(Math.sin(angle) * orbitRadius);
                 })
                 .scale(0.5f, builder -> builder
-                        .addKeyframe(0.5f, 1f, Easings.EASE_OUT_ELASTIC)
-                        .addKeyframe(1f, 0.5f, Easings.EASE_IN_QUAD))
+                        .addKeyframe(0.5f, 1f, EasingType.OUT_ELASTIC)
+                        .addKeyframe(1f, 0.5f, EasingType.IN_QUAD))
                 .loopInfinite()
                 .build(60));
     }
@@ -273,7 +319,7 @@ public class VfxDemos {
                 .blockState(Blocks.PACKED_ICE.defaultBlockState(), builder -> {})
                 .scale(0.75f, builder -> {})
                 .rotation(0, 0, 0, builder -> builder
-                        .addKeyframe(1f, 360, 360, 0, Easings.LINEAR))
+                        .addKeyframe(1f, 360, 360, 0, EasingType.LINEAR))
                 .onEnd(vfxEntity -> {
                     Vec3 impactPos = vfxEntity.position();
                     level.playLocalSound(impactPos.x, impactPos.y, impactPos.z,
@@ -287,9 +333,9 @@ public class VfxDemos {
                             .blockState(snapshot.blockState(), builder -> {})
                             .rotation(snapshot.rotation(), builder -> {})
                             .overlay(o -> o
-                                    .addIntensityKeyframe(1.0f, 0.0f, Easings.EASE_OUT_QUAD))
+                                    .addIntensityKeyframe(1.0f, 0.0f, EasingType.OUT_QUAD))
                             .scale(s -> s
-                                    .addKeyframe(1.0f, 2f, Easings.EASE_OUT_EXPO))
+                                    .addKeyframe(1.0f, 2f, EasingType.OUT_EXPO))
                             .build(12));
                 })
                 .loopInfinite()
@@ -326,15 +372,15 @@ public class VfxDemos {
             VfxEntity entity = VfxEntity.create(level, new Vec3(x, y, z));
 
 
-            int duration = 1800 + (int) VfxMathUtils.randomBetween(0f, 900f);
+            int duration = 1800 + (int) VfxUtils.randomBetween(0f, 900f);
             VfxAnimation anim = VfxAnimationBuilder.create()
                     .blockState(blocks[i % blocks.length], b -> {})
                     .translation(0, 0, 0, t -> t
-                            .addRandomKeyframe(1f, -2f, 2f, 0f, 4f, -2f, 2f, Easings.random(player.getRandom())))
+                            .addRandomKeyframe(1f, -2f, 2f, 0f, 4f, -2f, 2f, VfxUtils.getRandomEasing(player.getRandom())))
                     .scale(0.5f, s -> s
-                            .addRandomKeyframe(1f, 0.5f, 2f, 0.5f, 2f, 0.5f, 2f, Easings.random(player.getRandom())))
+                            .addRandomKeyframe(1f, 0.5f, 2f, 0.5f, 2f, 0.5f, 2f, VfxUtils.getRandomEasing(player.getRandom())))
                     .rotation(0, 0, 0, rot -> rot
-                            .addRandomKeyframe(1f, 0f, 720f, 0f, 720f, 0f, 720f, Easings.random(player.getRandom())))
+                            .addRandomKeyframe(1f, 0f, 720f, 0f, 720f, 0f, 720f, VfxUtils.getRandomEasing(player.getRandom())))
                     .build(duration);
             entity.playAnimation(anim);
         }
@@ -369,22 +415,22 @@ public class VfxDemos {
             entity.setPos(x, y, z);
             entity.setBlockState(blocks[i % blocks.length]);
 
-            int duration = 1800 + (int) VfxMathUtils.randomBetween(0f, 900f);
+            int duration = 1800 + (int) VfxUtils.randomBetween(0f, 900f);
 
             Vector3f endTranslation = new Vector3f(
-                    VfxMathUtils.randomBetween(-2f, 2f),
-                    VfxMathUtils.randomBetween(0f, 4f),
-                    VfxMathUtils.randomBetween(-2f, 2f)
+                    VfxUtils.randomBetween(-2f, 2f),
+                    VfxUtils.randomBetween(0f, 4f),
+                    VfxUtils.randomBetween(-2f, 2f)
             );
             Vector3f endScale = new Vector3f(
-                    VfxMathUtils.randomBetween(0.5f, 2f),
-                    VfxMathUtils.randomBetween(0.5f, 2f),
-                    VfxMathUtils.randomBetween(0.5f, 2f)
+                    VfxUtils.randomBetween(0.5f, 2f),
+                    VfxUtils.randomBetween(0.5f, 2f),
+                    VfxUtils.randomBetween(0.5f, 2f)
             );
             Quaternionf endRotation = new Quaternionf().rotationXYZ(
-                    (float) Math.toRadians(VfxMathUtils.randomBetween(0f, 720f)),
-                    (float) Math.toRadians(VfxMathUtils.randomBetween(0f, 720f)),
-                    (float) Math.toRadians(VfxMathUtils.randomBetween(0f, 720f))
+                    (float) Math.toRadians(VfxUtils.randomBetween(0f, 720f)),
+                    (float) Math.toRadians(VfxUtils.randomBetween(0f, 720f)),
+                    (float) Math.toRadians(VfxUtils.randomBetween(0f, 720f))
             );
 
             entity.setTransformation(new Transformation(

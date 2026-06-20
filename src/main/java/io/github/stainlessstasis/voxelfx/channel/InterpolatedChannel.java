@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.voxelfx.channel;
 
-import io.github.stainlessstasis.voxelfx.easing.Easings;
+import net.minecraft.util.EasingType;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 
@@ -17,8 +17,8 @@ public class InterpolatedChannel<S, T> implements Channel<T> {
 
     public static <S, T> InterpolatedChannel<S, T> holdChannel(S value, InterpolatedChannel.LerpFunction<S, T> lerp) {
         return new InterpolatedChannel<>(
-                List.of(new Keyframe<>(0f, value, Easings.LINEAR),
-                        new Keyframe<>(1f, value, Easings.LINEAR)),
+                List.of(new Keyframe<>(0f, value, EasingType.LINEAR),
+                        new Keyframe<>(1f, value, EasingType.LINEAR)),
                 lerp
         );
     }

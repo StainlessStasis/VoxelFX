@@ -1,5 +1,5 @@
 package io.github.stainlessstasis.voxelfx.channel;
 
-import io.github.stainlessstasis.voxelfx.easing.Easing;
+import net.minecraft.util.EasingType;
 
-public record Keyframe<T>(float time, T value, Easing easing) {}
+public record Keyframe<T>(float time, T value, EasingType easing) {}

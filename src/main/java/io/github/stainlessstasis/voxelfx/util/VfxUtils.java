@@ -1,14 +1,14 @@
 package io.github.stainlessstasis.voxelfx.util;
 
+import net.minecraft.util.EasingType;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class VfxMathUtils {
+public class VfxUtils {
     public static final double GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
 
     public static void forEachPointOnSphere(int count, boolean randomized, Consumer<Vector3f> action) {
@@ -96,5 +96,24 @@ public class VfxMathUtils {
      */
     public static double getRandom(@Nullable RandomSource random) {
         return random != null ? random.nextDouble() : Math.random();
+    }
+
+    /**
+     * Gets a random easing from the EasingType registry.
+     * If the registry is empty or not yet initialized, falls back to LINEAR.
+     * If the RandomSource provided is null, falls back to Math.random().
+     */
+    public static EasingType getRandomEasing(@Nullable RandomSource random) {
+        List<EasingType> easings = EasingType.SIMPLE_REGISTRY.values().stream().toList();
+
+        if (easings.isEmpty()) {
+            return EasingType.LINEAR;
+        }
+
+        int index = (random != null)
+                ? random.nextInt(easings.size())
+                : (int) (Math.random() * easings.size());
+
+        return easings.get(index);
     }
 }
