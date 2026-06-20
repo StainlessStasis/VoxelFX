@@ -1,38 +1,11 @@
 Copyright (c) 2026 StainlessStasis
 
-Permission is hereby granted, free of charge, to any person obtaining a copy 
-of this software and associated documentation files (the "Software"), to use, 
-copy, modify, merge, or distribute the Software, subject to the following conditions:
+All rights reserved. 
 
-1. ATTRIBUTION, NON-COMMERCIAL & LIBRARY USAGE
-Derivative works, forks, or raw modifications of this Software's source code must 
-attribute clear credit to the original author (StainlessStasis) and include a link 
-back to the original source repository. The Software and any derivative works 
-may NOT be used for commercial purposes, monetized Minecraft mods, or gated behind paywalls.
+No part of this software - including its source code, compiled binaries, and assets - may be reproduced, altered, 
+or distributed in any form or by any means without the prior written permission of the copyright holder.
 
-EXCEPTION: Third-party mods that include or depend upon this Software 
-unmodified as a compiled API or library dependency (e.g., via Gradle) 
-are exempt from this attribution requirement and do not need to provide credit or links.
-
-PLATFORM MONETIZATION CLEARANCE: Passive monetization generated through official 
-developer reward programs on mod hosting platforms (such as CurseForge Rewards or 
-Modrinth Creator Rewards) is explicitly PERMITTED for any allowed 
-derivative works, and does not violate the non-commercial clause.
-
-2. ALLOWED DOWNWARD VERSIONS (BACKPORTS)
-Modification, porting, and distribution of this Software to older versions of 
-Minecraft (any version sequentially below Minecraft 26.1.2) 
-is explicitly PERMITTED, provided it adheres to Condition 1.
-
-3. PROHIBITED UPWARD VERSIONS (FORWARD PORTS)
-Modification, porting, or distribution of this Software to any newer version of 
-Minecraft (any version sequentially above or equal to Minecraft 26.1.2) 
-is strictly PROHIBITED without explicit written permission from the original author.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+EXCEPTION:
+Permission is granted to modify, port, and distribute this software 
+exclusively for Minecraft versions strictly below 26.1.2. Any such ports 
+must clearly credit the original author and link to the original repository.
