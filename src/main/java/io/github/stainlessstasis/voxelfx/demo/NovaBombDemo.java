@@ -81,7 +81,6 @@ public class NovaBombDemo {
             BlockState orbitBlock = randomOf(orbitBlocks);
 
             VfxEntity orbiter = VfxEntity.createBoundTo(level, projectile);
-            level.addEntity(orbiter);
             orbiters[i] = orbiter;
 
             orbiter.playAnimation(VfxAnimationBuilder.create()
@@ -116,7 +115,6 @@ public class NovaBombDemo {
                 e.discard();
             }
         });
-        level.addEntity(poller);
 
         ClientTaskScheduler.INSTANCE.runTaskLater(60, new CancellableRunnable() {
             @Override protected void execute() {
@@ -160,7 +158,6 @@ public class NovaBombDemo {
 
             VfxEntity suction = VfxEntity.create(level,
                     impact.add(startX, randomBetween(-1f, 1f), startZ));
-            level.addEntity(suction);
 
             float scale = randomBetween(0.2f, 0.9f);
             suction.playAnimation(VfxAnimationBuilder.create()
@@ -241,7 +238,6 @@ public class NovaBombDemo {
                     );
 
                     VfxEntity burst = VfxEntity.create(level, impact);
-                    level.addEntity(burst);
 
                     burst.playAnimation(VfxAnimationBuilder.create()
                             .blockState(block, b -> b
@@ -290,7 +286,6 @@ public class NovaBombDemo {
                     );
 
                     VfxEntity fragment = VfxEntity.create(level, impact);
-                    level.addEntity(fragment);
 
                     fragment.playAnimation(VfxAnimationBuilder.create()
                             .blockState(block, b -> b
@@ -325,7 +320,6 @@ public class NovaBombDemo {
 
                     VfxEntity seeker = VfxEntity.create(level, impact);
                     seeker.setInfinitePersist(true);
-                    level.addEntity(seeker);
 
                     VfxAnimation seekerFly = VfxAnimationBuilder.create()
                             .blockState(Blocks.AMETHYST_BLOCK.defaultBlockState(), b -> {})
@@ -364,7 +358,6 @@ public class NovaBombDemo {
                                     float mX = (float) Math.cos(theta);
                                     float mZ = (float) Math.sin(theta);
                                     VfxEntity mini = VfxEntity.create(level, impact);
-                                    level.addEntity(mini);
                                     mini.playAnimation(VfxAnimationBuilder.create()
                                             .blockState(Blocks.PURPLE_STAINED_GLASS.defaultBlockState(), b -> {})
                                             .scale(0.2f, sc -> sc
