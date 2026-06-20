@@ -297,56 +297,7 @@ public class VfxDemos {
     }
 
     public static void demoShockwave(ClientLevel level, LocalPlayer player) {
-        Vec3 center = player.getEyePosition().add(player.getLookAngle().normalize().scale(6f));
-
-        int ringCount = 48;
-        int baseDuration = 20;
-
-        BlockState[][] colorSequences = {
-                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.ORANGE_CONCRETE.defaultBlockState(), Blocks.GRAY_STAINED_GLASS.defaultBlockState() },
-                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.ORANGE_STAINED_GLASS.defaultBlockState(), Blocks.WHITE_STAINED_GLASS.defaultBlockState() },
-                { Blocks.MAGMA_BLOCK.defaultBlockState(), Blocks.RED_STAINED_GLASS.defaultBlockState(), Blocks.BLACK_STAINED_GLASS.defaultBlockState() },
-        };
-
-        float radius = 10f;
-        VfxMathUtils.forEachPointOnRing(ringCount, 0f, dir -> {
-            BlockState[] sequence = VfxMathUtils.randomOf(colorSequences);
-
-            float startScale = VfxMathUtils.randomBetween(2f, 2.75f);
-            float endScale = VfxMathUtils.randomBetween(0.5f, 0.75f);
-            float fireTransition = VfxMathUtils.randomBetween(0.25f, 0.4f);
-            float smokeTransition = VfxMathUtils.randomBetween(0.5f, 0.7f);
-
-            Vector3f startRotation = new Vector3f(
-                    VfxMathUtils.randomBetween(0f, 360f),
-                    VfxMathUtils.randomBetween(0f, 360f),
-                    VfxMathUtils.randomBetween(0f, 360f)
-            );
-
-            VfxEntity entity = VfxEntity.create(level, center);
-
-
-            VfxAnimation anim = VfxAnimationBuilder.create()
-                    .blockState(sequence[0], b -> b
-                            .addKeyframe(fireTransition, sequence[1])
-                            .addKeyframe(smokeTransition, sequence[2]))
-                    .translation(0, 0, 0, t -> t
-                            .addKeyframe(1f, dir.x * radius, 0, dir.z * radius, Easings.EASE_OUT_EXPO))
-                    .scale(startScale, s -> s
-                            .addKeyframe(0.7f, startScale * 0.75f, Easings.EASE_IN_QUAD)
-                            .addKeyframe(1f, endScale, Easings.EASE_IN_QUAD))
-                    .rotation(startRotation, r -> r
-                            .addRandomDeltaKeyframe(1f, -30f, 30f, Easings.EASE_OUT_QUAD))
-                    .overlay(new Vector3f(1f, 0.5f, 0f), 0.8f, o -> o
-                            .addColorKeyframe(fireTransition, new Vector3f(0.8f, 0.0f, 0f), Easings.EASE_IN_QUAD)
-                            .addColorKeyframe(smokeTransition, new Vector3f(0.1f, 0.0f, 0.0f), Easings.EASE_IN_QUAD)
-                            .addIntensityKeyframe(smokeTransition, 0.2f, Easings.EASE_IN_QUAD)
-                            .addColorKeyframe(1f, new Vector3f(0.05f, 0.05f, 0.05f))
-                            .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
-                    .build(baseDuration + (int) VfxMathUtils.randomBetween(0f, 10f));
-
-            entity.playAnimation(anim);
-        });
+        EffectPresets.shockwave(level, player.position(), ShockwaveConfig.getDefault());
     }
 
     public static void demoPerformanceTest(ClientLevel level, LocalPlayer player) {

@@ -4,6 +4,8 @@ import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class VfxMathUtils {
@@ -80,6 +82,13 @@ public class VfxMathUtils {
     @SafeVarargs
     public static <T> T randomOf(@Nullable RandomSource random, T... options) {
         return options[(int) (getRandom(random) * options.length)];
+    }
+    public static <T> T randomOf(List<T> options) {
+        return randomOf(null, options);
+    }
+    public static <T> T randomOf(@Nullable RandomSource random, List<T> options) {
+        if (options == null || options.isEmpty()) return null;
+        return options.get((int) (getRandom(random) * options.size()));
     }
 
     /**
