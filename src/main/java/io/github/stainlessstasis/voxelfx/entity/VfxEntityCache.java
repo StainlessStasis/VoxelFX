@@ -18,11 +18,12 @@ import java.util.*;
 public class VfxEntityCache {
     public static final VfxEntityCache INSTANCE = new VfxEntityCache();
     private final List<VfxEntity> active = new ArrayList<>();
+    private final List<VfxEntity> toAdd = new ArrayList<>();
 
     private VfxEntityCache() {}
 
     public void add(VfxEntity entity) {
-        active.add(entity);
+        toAdd.add(entity);
     }
 
     public void remove(VfxEntity entity) {
@@ -31,18 +32,23 @@ public class VfxEntityCache {
 
     public void clear() {
         active.clear();
+        toAdd.clear();
     }
 
     @SubscribeEvent
     static void onTick(ClientTickEvent.Pre event) {
-        Iterator<VfxEntity> it = INSTANCE.active.iterator();
-        while (it.hasNext()) {
-            VfxEntity entity = it.next();
-            entity.tick();
-            if (entity.isRemoved()) {
-                it.remove();
-            }
+        var instance = INSTANCE;
+        if (!instance.toAdd.isEmpty()) {
+            instance.active.addAll(instance.toAdd);
+            instance.toAdd.clear();
         }
+
+        List<VfxEntity> currentActive = new ArrayList<>(INSTANCE.active);
+        for (VfxEntity entity : currentActive) {
+            entity.tick();
+        }
+
+        INSTANCE.active.removeIf(VfxEntity::isRemoved);
     }
 
     @SubscribeEvent
