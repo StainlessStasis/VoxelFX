@@ -83,12 +83,3 @@ You can also pause, resume, stop, or set the play speed of all VFX entities.
 
 # Documentation
 See the [wiki](https://github.com/StainlessStasis/VoxelFX/wiki/Getting-Started).
-
-# License:
-I have licensed the mod as ARR, but there are some exceptions:<br>
-- You may freely include or modify the mod for use in modpacks or on servers.<br>
-- You may also port this mod to any version BELOW 26.1.2.<br>
-
-These exceptions are subject to the following terms:<br>
-1) Credit the original mod by either linking to its Modrinth page, or the GitHub repo
-2) Make your port open source and non-commericial (revenue from Modrinth/Curseforge creator programs is fine obviously)
